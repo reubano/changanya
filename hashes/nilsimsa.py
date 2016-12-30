@@ -1,10 +1,10 @@
 """
 Implementation of Nilsimsa hashes (signatures) in Python.
 
-Most useful for filtering spam by creating signatures of documents to 
-find near-duplicates. Charikar similarity hashes can be used on any 
-datastream, whereas Nilsimsa is a digest ideal for documents (written 
-in any language) because it uses histograms of [rolling] trigraphs 
+Most useful for filtering spam by creating signatures of documents to
+find near-duplicates. Charikar similarity hashes can be used on any
+datastream, whereas Nilsimsa is a digest ideal for documents (written
+in any language) because it uses histograms of [rolling] trigraphs
 instead of the usual bag-of-words model where order doesn't matter.
 
 Related paper: http://spdp.dti.unimi.it/papers/pdcs04.pdf
@@ -14,7 +14,7 @@ Part of python-hashes by sangelone. See README and LICENSE.
 
 from hashtype import Hashtype
 
-TRAN = [ord(x) for x in 
+TRAN = [ord(x) for x in
     "\x02\xD6\x9E\x6F\xF9\x1D\x04\xAB\xD0\x22\x16\x1F\xD8\x73\xA1\xAC"\
     "\x3B\x70\x62\x96\x1E\x6E\x8F\x39\x9D\x05\x14\x4A\xA6\xBE\xAE\x0E"\
     "\xCF\xB9\x9C\x9A\xC7\x68\x13\xE1\x2D\xA4\xEB\x51\x8D\x64\x6B\x50"\
@@ -42,7 +42,7 @@ class Nilsimsa(Hashtype):
         self.create_hash(value)
 
     def create_hash(self, data):
-        """Calculates a Nilsimsa signature with appropriate bitlength.        
+        """Calculates a Nilsimsa signature with appropriate bitlength.
         Input must be a string. Returns nothing.
         Reference: http://ixazon.dynip.com/~cmeclax/nilsimsa.html
         """
@@ -104,7 +104,7 @@ class Nilsimsa(Hashtype):
                 out += 1 << i
 
         return out
-                            
+
     def similarity(self, other_hash):
         """Calculate how different this hash is from another Nilsimsa.
         Returns a float from 0.0 to 1.0 (inclusive)

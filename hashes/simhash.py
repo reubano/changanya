@@ -12,16 +12,16 @@ from hashtype import Hashtype
 class Simhash(Hashtype):
     def create_hash(self, tokens):
         """Calculates a Charikar simhash with appropriate bitlength.
-        
+
         Input can be any iterable, but for strings it will automatically
         break it into words first, assuming you don't want to iterate
         over the individual characters. Returns nothing.
-        
+
         Reference used: http://dsrg.mff.cuni.cz/~holub/sw/shash
         """
         if type(tokens) == str:
             tokens = tokens.split()
-        v = [0]*self.hashbits    
+        v = [0]*self.hashbits
         for t in [self._string_hash(x) for x in tokens]:
             bitmask = 0
             for i in xrange(self.hashbits):
@@ -34,7 +34,7 @@ class Simhash(Hashtype):
         fingerprint = 0
         for i in xrange(self.hashbits):
             if v[i] >= 0:
-                fingerprint += 1 << i        
+                fingerprint += 1 << i
         self.hash = fingerprint
 
     def _string_hash(self, v):
@@ -48,7 +48,7 @@ class Simhash(Hashtype):
             for c in v:
                 x = ((x*m)^ord(c)) & mask
             x ^= len(v)
-            if x == -1: 
+            if x == -1:
                 x = -2
             return x
 
