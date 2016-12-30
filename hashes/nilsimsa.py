@@ -40,7 +40,7 @@ class Nilsimsa(Hashtype):
         self.hashtype = Nilsimsa
         self.count = 0            # num characters seen
         self.acc = [0] * 256      # accumulators for computing digest
-        self.last = [-1] * 4    # last four seen characters (-1 until set)
+        self.last = [-1] * 4      # last four seen characters (-1 until set)
         super(Nilsimsa, self).__init__(hashbits)
         self.hash = self.create_hash(data)
 
