@@ -21,14 +21,13 @@ Based on code by Hiroaki Kawai <kawai@iij.ad.jp> and geohash.org
 import math
 from .hashtype import Hashtype
 
+_BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz'
+_BASE32_MAP = {_BASE32[i]: i for i in range(len(_BASE32))}
+
 
 class Geohash(Hashtype):
     # Not the actual RFC 4648 standard; a variation
-    _base32 = '0123456789bcdefghjkmnpqrstuvwxyz'
-    _base32_map = {}
 
-    for i in range(len(_base32)):
-        _base32_map[_base32[i]] = i
 
     def __init__(self, lat=0, lon=0, precision=12):
         super(Geohash, self).__init__()
@@ -45,10 +44,8 @@ class Geohash(Hashtype):
         ret = ''
 
         for i in range(precision):
-            ret += self._base32[(boost[a & 7]+(boost[b & 3] << 1)) & 0x1F]
-            t = a >> 3
-            a = b >> 2
-            b = t
+            ret += _BASE32[(boost[a & 7] + (boost[b & 3] << 1)) & 0x1F]
+            a, b = b >> 2, a >> 3
 
         return ret[::-1]
 
@@ -95,7 +92,7 @@ class Geohash(Hashtype):
 
         # Unrolled for speed and clarity
         for i in hashcode:
-            t = self._base32_map[i]
+            t = _BASE32_MAP[i]
 
             if not (bit_length & 1):
                 lon = lon << 3

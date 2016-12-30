@@ -18,6 +18,25 @@ class Simhash(Hashtype):
         super(Simhash, self).__init__(hashbits)
         self.hash = self.create_hash(data)
 
+    def _string_hash(self, v):
+        "A variable-length version of Python's builtin hash. Neat!"
+        if v == '':
+            return 0
+        else:
+            x = ord(v[0]) << 7
+            m = 1000003
+            mask = 2 ** self.hashbits - 1
+
+            for c in v:
+                x = ((x * m) ^ ord(c)) & mask
+
+            x ^= len(v)
+
+            if x == -1:
+                x = -2
+
+            return x
+
     def create_hash(self, data):
         """Calculates a Charikar simhash with appropriate bitlength.
 
@@ -44,22 +63,3 @@ class Simhash(Hashtype):
                 _hash += 1 << i
 
         return _hash
-
-    def _string_hash(self, v):
-        "A variable-length version of Python's builtin hash. Neat!"
-        if v == '':
-            return 0
-        else:
-            x = ord(v[0]) << 7
-            m = 1000003
-            mask = 2 ** self.hashbits - 1
-
-            for c in v:
-                x = ((x * m) ^ ord(c)) & mask
-
-            x ^= len(v)
-
-            if x == -1:
-                x = -2
-
-            return x
