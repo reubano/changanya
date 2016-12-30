@@ -19,6 +19,8 @@ Based on code by Hiroaki Kawai <kawai@iij.ad.jp> and geohash.org
 """
 
 import math
+
+from decimal import Decimal
 from .hashtype import Hashtype
 
 _BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz'
@@ -28,20 +30,23 @@ _BASE32_MAP = {_BASE32[i]: i for i in range(len(_BASE32))}
 class Geohash(Hashtype):
     # Not the actual RFC 4648 standard; a variation
     def __init__(self, latitude=0, longitude=0, precision=12):
-        if latitude >= 90 or latitude < -90:
+        dec_latitude = Decimal(latitude)
+        dec_longitude = Decimal(longitude)
+
+        if dec_latitude >= 90 or dec_latitude < -90:
             raise Exception("invalid latitude")
 
-        self.latitude = latitude
-        self.longitude = longitude
+        self.latitude = dec_latitude
+        self.longitude = dec_longitude
 
-        while longitude < -180:
-            longitude += 360
+        while dec_longitude < -180:
+            dec_longitude += 360
 
-        while longitude >= 180:
-            longitude -= 360
+        while dec_longitude >= 180:
+            dec_longitude -= 360
 
-        self.lat = latitude / 180
-        self.lon = longitude / 360
+        self.lat = dec_latitude / 180
+        self.lon = dec_longitude / 360
         self.precision = precision
         super(Geohash, self).__init__()
         self.encode(self.precision)
@@ -139,7 +144,7 @@ class Geohash(Hashtype):
         pass
 
     def unit_distance(self, lat1, lon1, lat2, lon2):
-        degrees_to_radians = math.pi / 180
+        degrees_to_radians = Decimal(math.pi) / 180
         phi1 = (90 - lat1) * degrees_to_radians
         phi2 = (90 - lat2) * degrees_to_radians
         theta1 = lon1 * degrees_to_radians
@@ -150,7 +155,7 @@ class Geohash(Hashtype):
             math.sin(phi1) * math.sin(phi2) * math.cos(theta1 - theta2) +
             math.cos(phi1) * math.cos(phi2))
 
-        return math.acos(cos)
+        return Decimal(math.acos(cos))
 
     def distance(self, other_hash):
         lat, lon = self.latitude, self.longitude

@@ -86,7 +86,7 @@ basic usage::
     >>> here.hash, there.hash
     ('evzs', 'eynk')
     >>> here.distance_in_miles(there)
-    131.2474342505055
+    Decimal('131.2474342505055105445599395')
 
     >>> # The longer the hash, the more accurate it is
     >>> here.encode(precision=8)
