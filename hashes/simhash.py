@@ -9,6 +9,7 @@ Part of python-hashes by sangelone. See README and LICENSE.
 
 from hashtype import Hashtype
 
+
 class Simhash(Hashtype):
     def __init__(self, tokens, hashbits=96):
         _hash = self.create_hash(tokens)
@@ -45,17 +46,21 @@ class Simhash(Hashtype):
 
     def _string_hash(self, v):
         "A variable-length version of Python's builtin hash. Neat!"
-        if v == "":
+        if v == '':
             return 0
         else:
-            x = ord(v[0])<<7
+            x = ord(v[0]) << 7
             m = 1000003
-            mask = 2**self.hashbits-1
+            mask = 2 ** self.hashbits - 1
+
             for c in v:
-                x = ((x*m)^ord(c)) & mask
+                x = ((x * m) ^ ord(c)) & mask
+
             x ^= len(v)
+
             if x == -1:
                 x = -2
+
             return x
 
     def similarity(self, other_hash):
