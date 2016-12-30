@@ -90,7 +90,7 @@ basic usage::
     >>> here.distance_in_miles(there)
     Decimal('131.24743')
 
-    >>> # The longer the hash, the more precise it is
+    >>> # The higher the precision, the longer the hash is
     >>> here.encode(precision=8)
     >>> here.hash
     'evzk08wt'
