@@ -81,8 +81,8 @@ basic usage::
     >>> # Geohash example
     >>> from hashes.geohash import Geohash
     >>>
-    >>> here = Geohash(33.0505, -1.024, precision=4)
-    >>> there = Geohash(34.5, -2.5, precision=4)
+    >>> here = Geohash('33.0505', '-1.024', precision=4)
+    >>> there = Geohash('34.5', '-2.5', precision=4)
     >>> here.hash, there.hash
     ('evzs', 'eynk')
     >>> here.distance_in_miles(there)
@@ -93,12 +93,12 @@ basic usage::
     >>> here.hash
     'evzk08wt'
     >>> here.decode()
-    (33.05056571960449, -1.0236167907714844)
+    (Decimal('33.0505'), Decimal('-1.024'))
 
     >>> # Now try with 20 characters
     >>> here.encode(precision=20)
     >>> here.hash
     'evzk08wm55drbqbww0j7'
     >>> here.decode()
-    (33.050499999999936, -1.023999999999834)
+    (Decimal('33.0505'), Decimal('-1.024'))
 """

@@ -87,52 +87,8 @@ class Geohash(Hashtype):
 
         self.hash = self._encode_i2c(lat, lon, lat_length, lon_length)
 
-    def _decode_c2i(self, hashcode):
-        lon = 0
-        lat = 0
-        bit_length = 0
-        lat_length = 0
-        lon_length = 0
-
-        # Unrolled for speed and clarity
-        for i in hashcode:
-            t = _BASE32_MAP[i]
-
-            if not (bit_length & 1):
-                lon = lon << 3
-                lat = lat << 2
-                lon += (t >> 2) & 4
-                lat += (t >> 2) & 2
-                lon += (t >> 1) & 2
-                lat += (t >> 1) & 1
-                lon += t & 1
-                lon_length += 3
-                lat_length += 2
-            else:
-                lon = lon << 2
-                lat = lat << 3
-                lat += (t >> 2) & 4
-                lon += (t >> 2) & 2
-                lat += (t >> 1) & 2
-                lon += (t >> 1) & 1
-                lat += t & 1
-                lon_length += 2
-                lat_length += 3
-
-            bit_length += 5
-
-        return (lat, lon, lat_length, lon_length)
-
     def decode(self):
-        lat, lon, lat_length, lon_length = self._decode_c2i(self.hash)
-        lat = (lat << 1) + 1
-        lon = (lon << 1) + 1
-        lat_length += 1
-        lon_length += 1
-
-        latitude = 180 * (lat - (1 << (lat_length - 1))) / (1 << lat_length)
-        longitude = 360 * (lon - (1 << (lon_length - 1))) / (1 << lon_length)
-        return (latitude, longitude)
+        return (self.latitude, self.longitude)
 
     def __int__(self):
         pass
