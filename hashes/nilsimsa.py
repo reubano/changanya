@@ -36,13 +36,13 @@ TRAN = [ord(x) for x in _TRAN]
 
 
 class Nilsimsa(Hashtype):
-    def __init__(self, value='', hashbits=256):
+    def __init__(self, data='', hashbits=256):
         self.hashtype = Nilsimsa
         self.count = 0            # num characters seen
         self.acc = [0] * 256      # accumulators for computing digest
         self.last = [-1] * 4    # last four seen characters (-1 until set)
         super(Nilsimsa, self).__init__(hashbits)
-        self.hash = self.create_hash(value)
+        self.hash = self.create_hash(data)
 
     def _tran3(self, a, b, c, n):
         """Get accumulator for a transition n between chars a, b, c."""

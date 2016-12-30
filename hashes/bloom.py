@@ -25,9 +25,9 @@ from .hashtype import Hashtype
 
 
 class Bloomfilter(Hashtype):
-    def __init__(self, value='', capacity=3000, false_positive_rate=0.01):
+    def __init__(self, data='', capacity=3000, false_positive_rate=0.01):
         """
-        'value' is the initial string or list of strings to hash,
+        'data' is the initial string or list of strings to hash,
         'capacity' is the expected upper limit on items inserted, and
         'false_positive_rate' is self-explanatory but the smaller it is,
         the larger your hashes!
@@ -36,7 +36,7 @@ class Bloomfilter(Hashtype):
             capacity, false_positive_rate)
 
         super(Bloomfilter, self).__init__(hashbits)
-        self.hash = self.create_hash(value)
+        self.hash = self.create_hash(data)
 
     def _add(self, _hash, item):
         return reduce(lambda x, y: x | (2 ** y), self._hashes(item), _hash)
@@ -45,7 +45,7 @@ class Bloomfilter(Hashtype):
         "Add an item (string) to the filter. Cannot be removed later!"
         self.hash = self._add(self.hash, item)
 
-    def create_hash(self, initial):
+    def create_hash(self, data):
         """
         Calculates a Bloom filter with the specified parameters.
         Initializes with a string or list/set/tuple of strings. No output.
@@ -53,10 +53,10 @@ class Bloomfilter(Hashtype):
         Reference material:
         http://bitworking.org/news/380/bloom-filter-resources
         """
-        if initial and type(initial) == str:
-            _hash = self._add(0, initial)
-        elif initial:
-            _hash = reduce(self._add, initial, 0)
+        if data and type(data) == str:
+            _hash = self._add(0, data)
+        elif data:
+            _hash = reduce(self._add, data, 0)
         else:
             _hash = 0
 

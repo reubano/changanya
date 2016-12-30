@@ -13,12 +13,12 @@ from .hashtype import Hashtype
 
 
 class Simhash(Hashtype):
-    def __init__(self, tokens, hashbits=96):
+    def __init__(self, data, hashbits=96):
         self.hashtype = Simhash
         super(Simhash, self).__init__(hashbits)
-        self.hash = self.create_hash(tokens)
+        self.hash = self.create_hash(data)
 
-    def create_hash(self, tokens):
+    def create_hash(self, data):
         """Calculates a Charikar simhash with appropriate bitlength.
 
         Input can be any iterable, but for strings it will automatically
@@ -27,9 +27,7 @@ class Simhash(Hashtype):
 
         Reference used: http://dsrg.mff.cuni.cz/~holub/sw/shash
         """
-        if type(tokens) == str:
-            tokens = tokens.split()
-
+        tokens = data.split() if type(data) == str else data
         v = [0] * self.hashbits
 
         for t in [self._string_hash(x) for x in tokens]:
