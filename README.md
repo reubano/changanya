@@ -3,7 +3,7 @@
 Interesting (non-cryptographic) hashes implemented in pure Python. Included so far:
 
  * Bloom filters
- * Charikar similarity hashes 
+ * Charikar similarity hashes
  * Nilsimsa signatures
  * geohashes
 
@@ -36,8 +36,8 @@ Here is a quick example session showing off similarity hashes:
     '0x20f82026a01daffae45cfdc8L'
     >>> hash1.similarity(hash2)
     0.875                   # % of bits in common (calculated via hamming distance)
-    >>> long(hash1) - long(hash2)
-    -546446276382019445258713600L
+    >>> int(hash1) - int(hash2)
+    -546446276382019445258713600
     >>> hash1 < hash2       # Hashes of the same type can be compared
     True
     >>> a_list = [hash2, hash1, 4.2]
