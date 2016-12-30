@@ -27,11 +27,24 @@ _BASE32_MAP = {_BASE32[i]: i for i in range(len(_BASE32))}
 
 class Geohash(Hashtype):
     # Not the actual RFC 4648 standard; a variation
+    def __init__(self, latitude=0, longitude=0, precision=12):
+        if latitude >= 90 or latitude < -90:
+            raise Exception("invalid latitude")
 
+        self.latitude = latitude
+        self.longitude = longitude
 
-    def __init__(self, lat=0, lon=0, precision=12):
+        while longitude < -180:
+            longitude += 360
+
+        while longitude >= 180:
+            longitude -= 360
+
+        self.lat = latitude / 180
+        self.lon = longitude / 360
+        self.precision = precision
         super(Geohash, self).__init__()
-        self.encode(lat, lon, precision)
+        self.encode(self.precision)
 
     def _encode_i2c(self, lat, lon, lat_length, lon_length):
         precision = (lat_length + lon_length) // 5
@@ -49,37 +62,23 @@ class Geohash(Hashtype):
 
         return ret[::-1]
 
-    def encode(self, latitude, longitude, precision):
-        self.latitude = latitude
-        self.longitude = longitude
-
-        if latitude >= 90 or latitude < -90:
-            raise Exception("invalid latitude")
-
-        while longitude < -180:
-            longitude += 360
-
-        while longitude >= 180:
-            longitude -= 360
-
-        lat = latitude / 180
-        lon = longitude / 360
-
+    def encode(self, precision=None):
+        precision = precision or self.precision
         lat_length = lon_length = precision * 5 // 2
         lon_length += precision & 1
 
         # Here is where we decide encoding based on quadrant..
         # points near the equator, for example, will have widely
         # differing hashes because of this
-        if lat > 0:
-            lat = int((1 << lat_length) * lat) + (1 << (lat_length - 1))
+        if self.lat > 0:
+            lat = int((1 << lat_length) * self.lat) + (1 << (lat_length - 1))
         else:
-            lat = (1 << lat_length - 1) - int((1 << lat_length) * -lat)
+            lat = (1 << lat_length - 1) - int((1 << lat_length) * -self.lat)
 
-        if lon > 0:
-            lon = int((1 << lon_length) * lon) + (1 << (lon_length - 1))
+        if self.lon > 0:
+            lon = int((1 << lon_length) * self.lon) + (1 << (lon_length - 1))
         else:
-            lon = (1 << lon_length - 1) - int((1 << lon_length) * -lon)
+            lon = (1 << lon_length - 1) - int((1 << lon_length) * -self.lon)
 
         self.hash = self._encode_i2c(lat, lon, lat_length, lon_length)
 
@@ -128,9 +127,6 @@ class Geohash(Hashtype):
 
         latitude = 180 * (lat - (1 << (lat_length - 1))) / (1 << lat_length)
         longitude = 360 * (lon - (1 << (lon_length - 1))) / (1 << lon_length)
-
-        self.latitude = latitude
-        self.longitude = longitude
         return (latitude, longitude)
 
     def __int__(self):

@@ -89,14 +89,14 @@ basic usage::
     131.2474342505055
 
     >>> # The longer the hash, the more accurate it is
-    >>> here.encode(33.0505, -1.024, precision=8)
+    >>> here.encode(precision=8)
     >>> here.hash
     'evzk08wt'
     >>> here.decode()
     (33.05056571960449, -1.0236167907714844)
 
     >>> # Now try with 20 characters
-    >>> here.encode(33.0505, -1.024, precision=20)
+    >>> here.encode(precision=20)
     >>> here.hash
     'evzk08wm55drbqbww0j7'
     >>> here.decode()
