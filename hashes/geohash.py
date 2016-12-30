@@ -31,6 +31,7 @@ class Geohash(Hashtype):
         _base32_map[_base32[i]] = i
 
     def __init__(self, lat=0, lon=0, precision=12):
+        super(Geohash, self).__init__()
         self.encode(lat, lon, precision)
 
     def _encode_i2c(self, lat, lon, lat_length, lon_length):

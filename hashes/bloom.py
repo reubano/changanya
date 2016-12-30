@@ -19,6 +19,8 @@ Part of python-hashes by sangelone. See README and LICENSE.
 import math
 import hashlib
 
+from functools import reduce
+
 from .hashtype import Hashtype
 
 
@@ -30,9 +32,20 @@ class Bloomfilter(Hashtype):
         'false_positive_rate' is self-explanatory but the smaller it is,
         the larger your hashes!
         """
-        self.create_hash(value, capacity, false_positive_rate)
+        hashbits, self.num_hashes = self._optimal_size(
+            capacity, false_positive_rate)
 
-    def create_hash(self, initial, capacity, error):
+        super(Bloomfilter, self).__init__(hashbits)
+        self.hash = self.create_hash(value)
+
+    def _add(self, _hash, item):
+        return reduce(lambda x, y: x | (2 ** y), self._hashes(item), _hash)
+
+    def add(self, item):
+        "Add an item (string) to the filter. Cannot be removed later!"
+        self.hash = self._add(self.hash, item)
+
+    def create_hash(self, initial):
         """
         Calculates a Bloom filter with the specified parameters.
         Initializes with a string or list/set/tuple of strings. No output.
@@ -40,14 +53,14 @@ class Bloomfilter(Hashtype):
         Reference material:
         http://bitworking.org/news/380/bloom-filter-resources
         """
-        self.hash = 0
-        self.hashbits, self.num_hashes = self._optimal_size(capacity, error)
-
         if initial and type(initial) == str:
-            self.add(initial)
+            _hash = self._add(0, initial)
         elif initial:
-            for t in initial:
-                self.add(t)
+            _hash = reduce(self._add, initial, 0)
+        else:
+            _hash = 0
+
+        return _hash
 
     def _hashes(self, item):
         """
@@ -84,11 +97,6 @@ class Bloomfilter(Hashtype):
         m = math.ceil(numerator / math.log(1 / (math.pow(2, math.log(2)))))
         k = math.ceil(math.log(2) * m / capacity)
         return (int(m), int(k))
-
-    def add(self, item):
-        "Add an item (string) to the filter. Cannot be removed later!"
-        for pos in self._hashes(item):
-            self.hash |= (2 ** pos)
 
     def __contains__(self, name):
         "This function is used by the 'in' keyword"

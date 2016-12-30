@@ -41,8 +41,8 @@ class Nilsimsa(Hashtype):
         self.count = 0            # num characters seen
         self.acc = [0] * 256      # accumulators for computing digest
         self.last = [-1] * 4    # last four seen characters (-1 until set)
-        _hash = self.create_hash(value)
-        super(Nilsimsa, self).__init__(_hash, hashbits=hashbits)
+        super(Nilsimsa, self).__init__(hashbits)
+        self.hash = self.create_hash(value)
 
     def _tran3(self, a, b, c, n):
         """Get accumulator for a transition n between chars a, b, c."""

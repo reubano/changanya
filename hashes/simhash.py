@@ -14,9 +14,9 @@ from .hashtype import Hashtype
 
 class Simhash(Hashtype):
     def __init__(self, tokens, hashbits=96):
-        _hash = self.create_hash(tokens)
-        super(Simhash, self).__init__(_hash, hashbits=hashbits)
         self.hashtype = Simhash
+        super(Simhash, self).__init__(hashbits)
+        self.hash = self.create_hash(tokens)
 
     def create_hash(self, tokens):
         """Calculates a Charikar simhash with appropriate bitlength.
