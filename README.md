@@ -3,7 +3,7 @@
 Interesting (non-cryptographic) hashes implemented in pure Python. Included so far:
 
  * Bloom filters
- * Charikar similarity hashes 
+ * Charikar similarity hashes
  * Nilsimsa signatures
  * geohashes
 
@@ -25,19 +25,19 @@ own token (order does not matter, as in the bag-of-words model).
 
 Here is a quick example session showing off similarity hashes:
 ```python
-    >>> from hashes.simhash import simhash
+    >>> from hashes.simhash import Simhash
     >>> hash1 = simhash('This is a test string one.')
     >>> hash2 = simhash('This is a test string TWO.')
     >>> hash1
-    <simhash.simhash object at 0x7f1f93070c90>
+    <simhash.Simhash object at 0x7f1f93070c90>
     >>> print hash1, hash2
     10203485745788768176630988232 10749932022170787621889701832
     >>> hash1.hex()
     '0x20f82026a01daffae45cfdc8L'
     >>> hash1.similarity(hash2)
     0.875                   # % of bits in common (calculated via hamming distance)
-    >>> long(hash1) - long(hash2)
-    -546446276382019445258713600L
+    >>> int(hash1) - int(hash2)
+    -546446276382019445258713600
     >>> hash1 < hash2       # Hashes of the same type can be compared
     True
     >>> a_list = [hash2, hash1, 4.2]
@@ -88,8 +88,8 @@ become more dense (and false-positive-prone) as you add more elements.
 Here is the basic use case:
 
 ```python
-    >>> from hashes.bloom import bloomfilter
-    >>> hash1 = bloomfilter('test')
+    >>> from hashes.bloom import Bloomfilter
+    >>> hash1 = Bloomfilter('test')
     >>> hash1.hashbits, hash1.num_hashes     # default values (see below)
     (28756, 7)
     >>> hash1.add('test string')
@@ -151,9 +151,9 @@ the default precision is 12 (base32) characters long.
 It's very easy to use:
 
 ```python
-    >>> from hashes.geohash import geohash
-    >>> here = geohash(33.0505, -1.024, precision=4)
-    >>> there = geohash(34.5, -2.5, precision=4)
+    >>> from hashes.geohash import Geohash
+    >>> here = Geohash(33.0505, -1.024, precision=4)
+    >>> there = Geohash(34.5, -2.5, precision=4)
     >>> here.hash, there.hash
     ('evzs', 'eynk')
     >>> here.distance_in_miles(there)

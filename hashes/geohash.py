@@ -1,15 +1,17 @@
+# -*- coding: utf-8 -*-
+
 """
-Geohash is a latitude/longitude geocode system invented by 
-Gustavo Niemeyer when writing the web service at geohash.org, and put 
+Geohash is a latitude / longitude geocode system invented by
+Gustavo Niemeyer when writing the web service at geohash.org, and put
 into the public domain.
 
-It is a hierarchical spatial data structure which subdivides space 
-into buckets of grid shape. Geohashes offer properties like 
-arbitrary precision and the possibility of gradually removing 
-characters from the end of the code to reduce its size (and 
-gradually lose precision). As a consequence of the gradual 
-precision degradation, nearby places will often (but not always) 
-present similar prefixes. On the other side, the longer a shared 
+It is a hierarchical spatial data structure which subdivides space
+into buckets of grid shape. Geohashes offer properties like
+arbitrary precision and the possibility of gradually removing
+characters from the end of the code to reduce its size (and
+gradually lose precision). As a consequence of the gradual
+precision degradation, nearby places will often (but not always)
+present similar prefixes. On the other side, the longer a shared
 prefix is, the closer the two places are.
 
 Part of python-hashes by sangelone. See README and LICENSE.
@@ -17,140 +19,149 @@ Based on code by Hiroaki Kawai <kawai@iij.ad.jp> and geohash.org
 """
 
 import math
-from hashtype import hashtype
+
+from decimal import Decimal
+from .hashtype import Hashtype
+
+_BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz'
+_BASE32_MAP = {_BASE32[i]: i for i in range(len(_BASE32))}
 
 
-class geohash(hashtype):
-    # Not the actual RFC 4648 standard; a varation
-    _base32 = '0123456789bcdefghjkmnpqrstuvwxyz'
-    _base32_map = {}
-    for i in range(len(_base32)):
-        _base32_map[_base32[i]] = i
+# http://gis.stackexchange.com/q/115280/39422
+# http://gis.stackexchange.com/a/8655/39422
+# http://gis.stackexchange.com/a/208739/39422
+LATLON_PRECISION_OFFSET = 2
+HASH_PLACES_OFFSET = -LATLON_PRECISION_OFFSET
+KM_PRECISION_OFFSET = 2
+KM_PLACES_OFFSET = -KM_PRECISION_OFFSET
+MI_PRECISION_OFFSET = 1
+MI_PLACES_OFFSET = -MI_PRECISION_OFFSET
 
-    def __init__(self, lat=0.0, long=0.0, precision=12):
-        self.encode(lat, long, precision)
+# TODO: account for 2nd link and cases where displayed decimal places < 0
+class Geohash(Hashtype):
+    # Not the actual RFC 4648 standard; a variation
+    def __init__(self, latitude=0, longitude=0, precision=12):
+        dec_latitude = Decimal(latitude)
+        dec_longitude = Decimal(longitude)
+
+        if dec_latitude >= 90 or dec_latitude < -90:
+            raise ValueError('invalid latitude %s' % latitude)
+
+        self.lat_places = -dec_latitude.as_tuple()[2]
+        self.lon_places = -dec_longitude.as_tuple()[2]
+        self.precision = precision
+        self.max_precision = max(self.lat_places + HASH_PLACES_OFFSET, 0)
+        self.latitude = dec_latitude
+        self.longitude = dec_longitude
+
+        while dec_longitude < -180:
+            dec_longitude += 360
+
+        while dec_longitude >= 180:
+            dec_longitude -= 360
+
+        self.lat = dec_latitude / 180
+        self.lon = dec_longitude / 360
+        super(Geohash, self).__init__()
+        self.encode()
+
+    @property
+    def lat_precision(self):
+        desired_precision = self.precision + LATLON_PRECISION_OFFSET
+        return Decimal((0, (1,), -min(desired_precision, self.lat_places)))
+
+    @property
+    def lon_precision(self):
+        desired_precision = self.precision + LATLON_PRECISION_OFFSET
+        return Decimal((0, (1,), -min(desired_precision, self.lon_places)))
+
+    @property
+    def km_precision(self):
+        desired_precision = self.precision + KM_PRECISION_OFFSET
+        max_precision = max(self.lat_places + KM_PLACES_OFFSET, 0)
+        return Decimal((0, (1,), -min(desired_precision, max_precision)))
+
+    @property
+    def mi_precision(self):
+        desired_precision = self.precision + MI_PRECISION_OFFSET
+        max_precision = max(self.lat_places + MI_PLACES_OFFSET, 0)
+        return Decimal((0, (1,), -min(desired_precision, max_precision)))
 
     def _encode_i2c(self, lat, lon, lat_length, lon_length):
-        precision=(lat_length+lon_length)/5
-        a, b = lat, lon
-        if lat_length < lon_length:
-            a, b = lon, lat
-        
-        boost = (0,1,4,5,16,17,20,21)
+        precision = (lat_length + lon_length) // 5
+        a, b = (lon, lat) if lat_length < lon_length else (lat, lon)
+        boost = (0, 1, 4, 5, 16, 17, 20, 21)
         ret = ''
+
         for i in range(precision):
-                ret += self._base32[(boost[a&7]+(boost[b&3]<<1))&0x1F]
-                t = a>>3
-                a = b>>2
-                b = t
-        
+            ret += _BASE32[(boost[a & 7] + (boost[b & 3] << 1)) & 0x1F]
+            a, b = b >> 2, a >> 3
+
         return ret[::-1]
 
-    def encode(self, latitude, longitude, precision):
-        self.latitude = latitude
-        self.longitude = longitude
+    def encode(self, precision=None):
+        self.precision = min(precision or self.precision, self.max_precision)
+        lat_length = lon_length = self.precision * 5 // 2
+        lon_length += self.precision & 1
 
-        if latitude >= 90.0 or latitude < -90.0:
-                raise Exception("invalid latitude")
-        while longitude < -180.0:
-                longitude += 360.0
-        while longitude >= 180.0:
-                longitude -= 360.0
-        
-        lat = latitude / 180.0
-        lon = longitude / 360.0
-        
-        lat_length = lon_length = precision * 5 / 2
-        lon_length += precision & 1
-        
         # Here is where we decide encoding based on quadrant..
-        # points near the equator, for example, will have widely 
+        # points near the equator, for example, will have widely
         # differing hashes because of this
-        if lat>0:
-                lat = int((1<<lat_length)*lat)+(1<<(lat_length-1))
+        if self.lat > 0:
+            lat = int((1 << lat_length) * self.lat) + (1 << (lat_length - 1))
         else:
-                lat = (1<<lat_length-1)-int((1<<lat_length)*(-lat))
-        
-        if lon>0:
-                lon = int((1<<lon_length)*lon)+(1<<(lon_length-1))
+            lat = (1 << lat_length - 1) - int((1 << lat_length) * -self.lat)
+
+        if self.lon > 0:
+            lon = int((1 << lon_length) * self.lon) + (1 << (lon_length - 1))
         else:
-                lon = (1<<lon_length-1)-int((1<<lon_length)*(-lon))
-        
-        self.hash = self._encode_i2c(lat,lon,lat_length,lon_length)
+            lon = (1 << lon_length - 1) - int((1 << lon_length) * -self.lon)
 
-    def _decode_c2i(self, hashcode):
-        lon = 0
-        lat = 0
-        bit_length = 0
-        lat_length = 0
-        lon_length = 0
-
-        # Unrolled for speed and clarity
-        for i in hashcode:
-                t = self._base32_map[i]
-                if not (bit_length & 1):
-                        lon = lon<<3
-                        lat = lat<<2
-                        lon += (t>>2)&4
-                        lat += (t>>2)&2
-                        lon += (t>>1)&2
-                        lat += (t>>1)&1
-                        lon += t&1
-                        lon_length+=3
-                        lat_length+=2
-                else:
-                        lon = lon<<2
-                        lat = lat<<3
-                        lat += (t>>2)&4
-                        lon += (t>>2)&2
-                        lat += (t>>1)&2
-                        lon += (t>>1)&1
-                        lat += t&1
-                        lon_length+=2
-                        lat_length+=3
-                
-                bit_length+=5
-        
-        return (lat,lon,lat_length,lon_length)
+        self.hash = self._encode_i2c(lat, lon, lat_length, lon_length)
 
     def decode(self):
-        (lat,lon,lat_length,lon_length) = self._decode_c2i(self.hash)
-        
-        lat = (lat<<1) + 1
-        lon = (lon<<1) + 1
-        lat_length += 1
-        lon_length += 1
-        
-        latitude  = 180.0*(lat-(1<<(lat_length-1)))/(1<<lat_length)
-        longitude = 360.0*(lon-(1<<(lon_length-1)))/(1<<lon_length)
-        
-        self.latitude = latitude
-        self.longitude = longitude
+        quantized_lat = self.latitude.quantize(self.lat_precision)
+        quantized_lon = self.longitude.quantize(self.lon_precision)
+        return (quantized_lat, quantized_lon)
 
-        return latitude, longitude
+    def __int__(self):
+        pass
 
-    def __long__(self): pass
+    def __float__(self):
+        pass
 
-    def __float__(self): pass
+    def hex(self):
+        pass
 
-    def hex(self): pass
+    def unit_distance(self, lat1, lon1, lat2, lon2):
+        degrees_to_radians = Decimal(math.pi) / 180
+        phi1 = (90 - lat1) * degrees_to_radians
+        phi2 = (90 - lat2) * degrees_to_radians
+        theta1 = lon1 * degrees_to_radians
+        theta2 = lon2 * degrees_to_radians
 
-    def unit_distance(self, lat1, long1, lat2, long2):
-        degrees_to_radians = math.pi/180.0
+        # Compute spherical distance from spherical coordinates.
+        cos = (
+            math.sin(phi1) * math.sin(phi2) * math.cos(theta1 - theta2) +
+            math.cos(phi1) * math.cos(phi2))
 
-        phi1 = (90.0 - lat1)*degrees_to_radians
-        phi2 = (90.0 - lat2)*degrees_to_radians        
-        theta1 = long1*degrees_to_radians
-        theta2 = long2*degrees_to_radians
-        
-        # Compute spherical distance from spherical coordinates.        
-        cos = (math.sin(phi1)*math.sin(phi2)*math.cos(theta1 - theta2) + 
-               math.cos(phi1)*math.cos(phi2))
-        return math.acos(cos)
+        return Decimal(math.acos(cos))
 
-    def distance_in_miles(self, other_hash):
-        return self.unit_distance(self.latitude, self.longitude, other_hash.latitude, other_hash.longitude) * 3960
+    def distance(self, other):
+        lat, lon = self.latitude, self.longitude
+        other_lat, other_lon = other.latitude, other.longitude
+        return self.unit_distance(lat, lon, other_lat, other_lon)
 
-    def distance_in_km(self, other_hash):
-        return self.unit_distance(self.latitude, self.longitude, other_hash.latitude, other_hash.longitude) * 6373
+    def distance_in_miles(self, other):
+        lat_places = self.lat_places
+        self.lat_places = min(self.lat_places, other.lat_places)
+        distance = (self.distance(other) * 3960).quantize(self.mi_precision)
+        self.lat_places = lat_places
+        return distance
 
+    def distance_in_km(self, other):
+        lat_places = self.lat_places
+        self.lat_places = min(self.lat_places, other.lat_places)
+        distance = (self.distance(other) * 6373).quantize(self.km_precision)
+        self.lat_places = lat_places
+        return distance
