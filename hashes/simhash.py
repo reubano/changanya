@@ -9,7 +9,7 @@ so you can quickly find duplicates or cluster items.
 Part of python-hashes by sangelone. See README and LICENSE.
 """
 
-from hashtype import Hashtype
+from .hashtype import Hashtype
 
 
 class Simhash(Hashtype):

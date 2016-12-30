@@ -18,7 +18,8 @@ Part of python-hashes by sangelone. See README and LICENSE.
 
 import math
 import hashlib
-from hashtype import Hashtype
+
+from .hashtype import Hashtype
 
 
 class Bloomfilter(Hashtype):

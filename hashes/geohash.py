@@ -19,7 +19,7 @@ Based on code by Hiroaki Kawai <kawai@iij.ad.jp> and geohash.org
 """
 
 import math
-from hashtype import Hashtype
+from .hashtype import Hashtype
 
 
 class Geohash(Hashtype):
