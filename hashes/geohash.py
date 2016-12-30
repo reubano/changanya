@@ -34,7 +34,7 @@ class Geohash(Hashtype):
         self.encode(lat, lon, precision)
 
     def _encode_i2c(self, lat, lon, lat_length, lon_length):
-        precision = (lat_length + lon_length) / 5
+        precision = (lat_length + lon_length) // 5
         a, b = lat, lon
 
         if lat_length < lon_length:
@@ -65,7 +65,7 @@ class Geohash(Hashtype):
         lat = latitude / 180
         lon = longitude / 360
 
-        lat_length = lon_length = precision * 5 / 2
+        lat_length = lon_length = precision * 5 // 2
         lon_length += precision & 1
 
         # Here is where we decide encoding based on quadrant..
@@ -132,6 +132,9 @@ class Geohash(Hashtype):
         self.latitude = latitude
         self.longitude = longitude
         return (latitude, longitude)
+
+    def __int__(self):
+        pass
 
     def __float__(self):
         pass

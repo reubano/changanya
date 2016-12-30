@@ -32,6 +32,7 @@ class Bloomfilter(Hashtype):
         'false_positive_rate' is self-explanatory but the smaller it is,
         the larger your hashes!
         """
+        self.encoding = 'utf-8'
         hashbits, self.num_hashes = self._optimal_size(
             capacity, false_positive_rate)
 
@@ -68,12 +69,15 @@ class Bloomfilter(Hashtype):
         string and chop that up into 20 bit values and then
         mod down to the length of the Bloom filter.
         """
+        if hasattr(item, 'encode'):
+            item = item.encode(self.encoding)
+
         m = hashlib.sha1()
         m.update(item)
         digits = m.hexdigest()
 
         # Add another 160 bits for every 8 (20-bit long) hashes we need
-        for i in range(self.num_hashes / 8):
+        for i in range(self.num_hashes // 8):
             m.update(str(i))
             digits += m.hexdigest()
 
