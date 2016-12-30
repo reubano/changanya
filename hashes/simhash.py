@@ -10,32 +10,38 @@ Part of python-hashes by sangelone. See README and LICENSE.
 from hashtype import Hashtype
 
 class Simhash(Hashtype):
+    def __init__(self, tokens, hashbits=96):
+        _hash = self.create_hash(tokens)
+        super(Simhash, self).__init__(_hash, hashbits=hashbits)
+
     def create_hash(self, tokens):
         """Calculates a Charikar simhash with appropriate bitlength.
 
         Input can be any iterable, but for strings it will automatically
         break it into words first, assuming you don't want to iterate
-        over the individual characters. Returns nothing.
+        over the individual characters.
 
         Reference used: http://dsrg.mff.cuni.cz/~holub/sw/shash
         """
         if type(tokens) == str:
             tokens = tokens.split()
-        v = [0]*self.hashbits
+
+        v = [0] * self.hashbits
+
         for t in [self._string_hash(x) for x in tokens]:
             bitmask = 0
-            for i in xrange(self.hashbits):
-                bitmask = 1 << i
-                if t & bitmask:
-                    v[i] += 1
-                else:
-                    v[i] -= 1
 
-        fingerprint = 0
-        for i in xrange(self.hashbits):
+            for i in range(self.hashbits):
+                bitmask = 1 << i
+                v[i] += 1 if t & bitmask else -1
+
+        _hash = 0
+
+        for i in range(self.hashbits):
             if v[i] >= 0:
-                fingerprint += 1 << i
-        self.hash = fingerprint
+                _hash += 1 << i
+
+        return _hash
 
     def _string_hash(self, v):
         "A variable-length version of Python's builtin hash. Neat!"

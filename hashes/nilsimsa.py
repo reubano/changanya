@@ -35,11 +35,44 @@ TRAN = [ord(x) for x in
 
 class Nilsimsa(Hashtype):
     def __init__(self, value='', hashbits=256):
-        self.hashbits = hashbits
-        self.count = 0          # num characters seen
-        self.acc = [0]*256      # accumulators for computing digest
-        self.lastch = [-1]*4    # last four seen characters (-1 until set)
-        self.create_hash(value)
+        self.count = 0            # num characters seen
+        self.acc = [0] * 256      # accumulators for computing digest
+        self.last = [-1] * 4    # last four seen characters (-1 until set)
+        _hash = self.create_hash(value)
+        super(Nilsimsa, self).__init__(_hash, hashbits=hashbits)
+
+    def _tran3(self, a, b, c, n):
+        """Get accumulator for a transition n between chars a, b, c."""
+        multiple = (n + n + 1)
+        acc = (TRAN[(a + n) & 255] ^ TRAN[b] * multiple) + TRAN[(c) ^ TRAN[n]]
+        return acc & 255
+
+    def _digest(self):
+        """Get digest of data seen thus far as a list of bytes."""
+        total = 0                              # number of triplets seen
+
+        if self.count == 3:                    # 3 chars = 1 triplet
+            total = 1
+        elif self.count == 4:                  # 4 chars = 4 triplets
+            total = 4
+        elif self.count > 4:                   # otherwise 8 triplets/char less
+            total = 8 * self.count - 28        # 28 'missed' during 'ramp-up'
+
+        threshold = total / 256                # threshold for accumulators
+        code = [0] * self.hashbits             # start with all zero bits
+
+        for i in range(256):                   # for all 256 accumulators
+            if self.acc[i] > threshold:        # if it meets the threshold
+                code[i >> 3] += 1 << (i & 7)   # set corresponding digest bit
+
+        code = code[::-1]                      # reverse the byte order
+
+        out = 0
+        for i in range(self.hashbits):         # turn bit list into real bits
+            if code[i]:
+                out += 1 << i
+
+        return out
 
     def create_hash(self, data):
         """Calculates a Nilsimsa signature with appropriate bitlength.
@@ -48,10 +81,7 @@ class Nilsimsa(Hashtype):
         """
         if type(data) != str:
             raise Exception('Nilsimsa hashes can only be created on strings')
-        self.hash = 0L
-        self.add(data)
 
-    def add(self, data):
         """Add data to running digest, increasing the accumulators for 0-8
            triplets formed by this char and the previous 0-3 chars."""
         for character in data:
@@ -59,51 +89,24 @@ class Nilsimsa(Hashtype):
             self.count += 1
 
             # incr accumulators for triplets
-            if self.lastch[1] > -1:
-                self.acc[self._tran3(ch, self.lastch[0], self.lastch[1], 0)] +=1
-            if self.lastch[2] > -1:
-                self.acc[self._tran3(ch, self.lastch[0], self.lastch[2], 1)] +=1
-                self.acc[self._tran3(ch, self.lastch[1], self.lastch[2], 2)] +=1
-            if self.lastch[3] > -1:
-                self.acc[self._tran3(ch, self.lastch[0], self.lastch[3], 3)] +=1
-                self.acc[self._tran3(ch, self.lastch[1], self.lastch[3], 4)] +=1
-                self.acc[self._tran3(ch, self.lastch[2], self.lastch[3], 5)] +=1
-                self.acc[self._tran3(self.lastch[3], self.lastch[0], ch, 6)] +=1
-                self.acc[self._tran3(self.lastch[3], self.lastch[2], ch, 7)] +=1
+            if self.last[1] > -1:
+                self.acc[self._tran3(ch, self.last[0], self.last[1], 0)] += 1
+
+            if self.last[2] > -1:
+                self.acc[self._tran3(ch, self.last[0], self.last[2], 1)] += 1
+                self.acc[self._tran3(ch, self.last[1], self.last[2], 2)] += 1
+
+            if self.last[3] > -1:
+                self.acc[self._tran3(ch, self.last[0], self.last[3], 3)] += 1
+                self.acc[self._tran3(ch, self.last[1], self.last[3], 4)] += 1
+                self.acc[self._tran3(ch, self.last[2], self.last[3], 5)] += 1
+                self.acc[self._tran3(self.last[3], self.last[0], ch, 6)] += 1
+                self.acc[self._tran3(self.last[3], self.last[2], ch, 7)] += 1
 
             # adjust last seen chars
-            self.lastch = [ch] + self.lastch[:3]
-        self.hash = self._digest()
+            self.last = [ch] + self.last[:3]
 
-    def _tran3(self, a, b, c, n):
-        """Get accumulator for a transition n between chars a, b, c."""
-        return (((TRAN[(a+n)&255]^TRAN[b]*(n+n+1))+TRAN[(c)^TRAN[n]])&255)
-
-    def _digest(self):
-        """Get digest of data seen thus far as a list of bytes."""
-        total = 0                           # number of triplets seen
-        if self.count == 3:                 # 3 chars = 1 triplet
-            total = 1
-        elif self.count == 4:               # 4 chars = 4 triplets
-            total = 4
-        elif self.count > 4:                # otherwise 8 triplets/char less
-            total = 8 * self.count - 28     # 28 'missed' during 'ramp-up'
-
-        threshold = total / 256             # threshold for accumulators
-
-        code = [0]*self.hashbits            # start with all zero bits
-        for i in range(256):                # for all 256 accumulators
-            if self.acc[i] > threshold:     # if it meets the threshold
-                code[i >> 3] += 1 << (i&7)  # set corresponding digest bit
-
-        code = code[::-1]                   # reverse the byte order
-
-        out = 0
-        for i in xrange(self.hashbits):     # turn bit list into real bits
-            if code[i] :
-                out += 1 << i
-
-        return out
+        return self._digest()
 
     def similarity(self, other_hash):
         """Calculate how different this hash is from another Nilsimsa.
