@@ -17,10 +17,10 @@ Based on code by Hiroaki Kawai <kawai@iij.ad.jp> and geohash.org
 """
 
 import math
-from hashtype import hashtype
+from hashtype import Hashtype
 
 
-class geohash(hashtype):
+class Geohash(Hashtype):
     # Not the actual RFC 4648 standard; a varation
     _base32 = '0123456789bcdefghjkmnpqrstuvwxyz'
     _base32_map = {}

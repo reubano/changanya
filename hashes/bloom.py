@@ -16,10 +16,10 @@ Part of python-hashes by sangelone. See README and LICENSE.
 
 import math
 import hashlib
-from hashtype import hashtype
+from hashtype import Hashtype
 
 
-class bloomfilter(hashtype):
+class Bloomfilter(Hashtype):
     def __init__(self, value='', capacity=3000, false_positive_rate=0.01):
         """
         'value' is the initial string or list of strings to hash,

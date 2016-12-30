@@ -7,9 +7,9 @@ so you can quickly find duplicates or cluster items.
 Part of python-hashes by sangelone. See README and LICENSE.
 """
 
-from hashtype import hashtype
+from hashtype import Hashtype
 
-class simhash(hashtype):
+class Simhash(Hashtype):
     def create_hash(self, tokens):
         """Calculates a Charikar simhash with appropriate bitlength.
         
@@ -53,12 +53,14 @@ class simhash(hashtype):
             return x
 
     def similarity(self, other_hash):
-        """Calculate how similar this hash is from another simhash.
+        """Calculate how similar this hash is from another Simhash.
         Returns a float from 0.0 to 1.0 (linear distribution, inclusive)
         """
-        if type(other_hash) != simhash:
-            raise Exception('Hashes must be of same type to find similarity')
-        b = self.hashbits
-        if b!= other_hash.hashbits:
-            raise Exception('Hashes must be of equal size to find similarity')
-        return float(b - self.hamming_distance(other_hash)) / b
+        if type(other_hash) != self:
+            raise TypeError('Hashes must be of same type to find similarity')
+
+        if self.hashbits != other_hash.hashbits:
+            raise ValueError('Hashes must be of equal size to find similarity')
+
+        numerator = self.hashbits - self.hamming_distance(other_hash)
+        return numerator / self.hashbits

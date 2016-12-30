@@ -12,7 +12,7 @@ Related paper: http://spdp.dti.unimi.it/papers/pdcs04.pdf
 Part of python-hashes by sangelone. See README and LICENSE.
 """
 
-from hashtype import hashtype
+from hashtype import Hashtype
 
 TRAN = [ord(x) for x in 
     "\x02\xD6\x9E\x6F\xF9\x1D\x04\xAB\xD0\x22\x16\x1F\xD8\x73\xA1\xAC"\
@@ -33,7 +33,7 @@ TRAN = [ord(x) for x in
     "\xF1\xCD\xE4\x6A\xE7\xA9\xFD\xC4\x37\xC8\xD2\xF6\xDF\x58\x72\x4E"]
 
 
-class nilsimsa(hashtype):
+class Nilsimsa(Hashtype):
     def __init__(self, value='', hashbits=256):
         self.hashbits = hashbits
         self.count = 0          # num characters seen
@@ -109,9 +109,11 @@ class nilsimsa(hashtype):
         """Calculate how different this hash is from another Nilsimsa.
         Returns a float from 0.0 to 1.0 (inclusive)
         """
-        if type(other_hash) != nilsimsa:
-            raise Exception('Hashes must be of same type to find similarity')
-        b = self.hashbits
-        if b != other_hash.hashbits:
-            raise Exception('Hashes must be of equal size to find similarity')
-        return float(b - self.hamming_distance(other_hash)) / b
+        if type(other_hash) != self:
+            raise TypeError('Hashes must be of same type to find similarity')
+
+        if self.hashbits != other_hash.hashbits:
+            raise ValueError('Hashes must be of equal size to find similarity')
+
+        numerator = self.hashbits - self.hamming_distance(other_hash)
+        return numerator / self.hashbits
