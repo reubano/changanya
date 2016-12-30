@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Geohash is a latitude / longitude geocode system invented by
 Gustavo Niemeyer when writing the web service at geohash.org, and put

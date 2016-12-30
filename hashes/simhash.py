@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Implementation of Charikar similarity hashes in Python.
 

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Implementation of a Bloom filter in Python.
 
