@@ -81,24 +81,32 @@ basic usage::
     >>> # Geohash example
     >>> from hashes.geohash import Geohash
     >>>
-    >>> here = Geohash('33.0505', '-1.024', precision=4)
-    >>> there = Geohash('34.5', '-2.5', precision=4)
+    >>> here = Geohash('33.050500000000', '-1.024', precision=4)
+    >>> there = Geohash('34.50000000', '-2.500', precision=4)
     >>> here.hash, there.hash
     ('evzs', 'eynk')
+    >>> here.decode()
+    (Decimal('33.050500'), Decimal('-1.024'))
     >>> here.distance_in_miles(there)
-    Decimal('131.2474342505055105445599395')
+    Decimal('131.24743')
 
-    >>> # The longer the hash, the more accurate it is
+    >>> # The longer the hash, the more precise it is
     >>> here.encode(precision=8)
     >>> here.hash
     'evzk08wt'
     >>> here.decode()
-    (Decimal('33.0505'), Decimal('-1.024'))
+    (Decimal('33.0505000000'), Decimal('-1.024'))
+    >>> here.distance_in_miles(there)
+    Decimal('131.247434251')
 
-    >>> # Now try with 20 characters
-    >>> here.encode(precision=20)
+    >>> # But we can't gain more precision than we started with
+    >>> here.encode(precision=16)
+    >>> here.max_precision
+    10
     >>> here.hash
-    'evzk08wm55drbqbww0j7'
+    'evzk08wm57'
     >>> here.decode()
-    (Decimal('33.0505'), Decimal('-1.024'))
+    (Decimal('33.050500000000'), Decimal('-1.024'))
+    >>> here.distance_in_miles(there)
+    Decimal('131.24743425051')
 """

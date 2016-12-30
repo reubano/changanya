@@ -27,6 +27,17 @@ _BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz'
 _BASE32_MAP = {_BASE32[i]: i for i in range(len(_BASE32))}
 
 
+# http://gis.stackexchange.com/q/115280/39422
+# http://gis.stackexchange.com/a/8655/39422
+# http://gis.stackexchange.com/a/208739/39422
+LATLON_PRECISION_OFFSET = 2
+HASH_PLACES_OFFSET = -LATLON_PRECISION_OFFSET
+KM_PRECISION_OFFSET = 2
+KM_PLACES_OFFSET = -KM_PRECISION_OFFSET
+MI_PRECISION_OFFSET = 1
+MI_PLACES_OFFSET = -MI_PRECISION_OFFSET
+
+# TODO: account for 2nd link and cases where displayed decimal places < 0
 class Geohash(Hashtype):
     # Not the actual RFC 4648 standard; a variation
     def __init__(self, latitude=0, longitude=0, precision=12):
@@ -34,8 +45,12 @@ class Geohash(Hashtype):
         dec_longitude = Decimal(longitude)
 
         if dec_latitude >= 90 or dec_latitude < -90:
-            raise Exception("invalid latitude")
+            raise ValueError('invalid latitude %s' % latitude)
 
+        self.lat_places = -dec_latitude.as_tuple()[2]
+        self.lon_places = -dec_longitude.as_tuple()[2]
+        self.precision = precision
+        self.max_precision = max(self.lat_places + HASH_PLACES_OFFSET, 0)
         self.latitude = dec_latitude
         self.longitude = dec_longitude
 
@@ -47,17 +62,34 @@ class Geohash(Hashtype):
 
         self.lat = dec_latitude / 180
         self.lon = dec_longitude / 360
-        self.precision = precision
         super(Geohash, self).__init__()
-        self.encode(self.precision)
+        self.encode()
+
+    @property
+    def lat_precision(self):
+        desired_precision = self.precision + LATLON_PRECISION_OFFSET
+        return Decimal((0, (1,), -min(desired_precision, self.lat_places)))
+
+    @property
+    def lon_precision(self):
+        desired_precision = self.precision + LATLON_PRECISION_OFFSET
+        return Decimal((0, (1,), -min(desired_precision, self.lon_places)))
+
+    @property
+    def km_precision(self):
+        desired_precision = self.precision + KM_PRECISION_OFFSET
+        max_precision = max(self.lat_places + KM_PLACES_OFFSET, 0)
+        return Decimal((0, (1,), -min(desired_precision, max_precision)))
+
+    @property
+    def mi_precision(self):
+        desired_precision = self.precision + MI_PRECISION_OFFSET
+        max_precision = max(self.lat_places + MI_PLACES_OFFSET, 0)
+        return Decimal((0, (1,), -min(desired_precision, max_precision)))
 
     def _encode_i2c(self, lat, lon, lat_length, lon_length):
         precision = (lat_length + lon_length) // 5
-        a, b = lat, lon
-
-        if lat_length < lon_length:
-            a, b = lon, lat
-
+        a, b = (lon, lat) if lat_length < lon_length else (lat, lon)
         boost = (0, 1, 4, 5, 16, 17, 20, 21)
         ret = ''
 
@@ -68,9 +100,9 @@ class Geohash(Hashtype):
         return ret[::-1]
 
     def encode(self, precision=None):
-        precision = precision or self.precision
-        lat_length = lon_length = precision * 5 // 2
-        lon_length += precision & 1
+        self.precision = min(precision or self.precision, self.max_precision)
+        lat_length = lon_length = self.precision * 5 // 2
+        lon_length += self.precision & 1
 
         # Here is where we decide encoding based on quadrant..
         # points near the equator, for example, will have widely
@@ -88,7 +120,9 @@ class Geohash(Hashtype):
         self.hash = self._encode_i2c(lat, lon, lat_length, lon_length)
 
     def decode(self):
-        return (self.latitude, self.longitude)
+        quantized_lat = self.latitude.quantize(self.lat_precision)
+        quantized_lon = self.longitude.quantize(self.lon_precision)
+        return (quantized_lat, quantized_lon)
 
     def __int__(self):
         pass
@@ -119,7 +153,7 @@ class Geohash(Hashtype):
         return self.unit_distance(lat, lon, other_lat, other_lon)
 
     def distance_in_miles(self, other_hash):
-        return self.distance(other_hash) * 3960
+        return (self.distance(other_hash) * 3960).quantize(self.mi_precision)
 
     def distance_in_km(self, other_hash):
-        return self.distance(other_hash) * 6373
+        return (self.distance(other_hash) * 6373).quantize(self.km_precision)
