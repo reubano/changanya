@@ -147,13 +147,21 @@ class Geohash(Hashtype):
 
         return Decimal(math.acos(cos))
 
-    def distance(self, other_hash):
+    def distance(self, other):
         lat, lon = self.latitude, self.longitude
-        other_lat, other_lon = other_hash.latitude, other_hash.longitude
+        other_lat, other_lon = other.latitude, other.longitude
         return self.unit_distance(lat, lon, other_lat, other_lon)
 
-    def distance_in_miles(self, other_hash):
-        return (self.distance(other_hash) * 3960).quantize(self.mi_precision)
+    def distance_in_miles(self, other):
+        lat_places = self.lat_places
+        self.lat_places = min(self.lat_places, other.lat_places)
+        distance = (self.distance(other) * 3960).quantize(self.mi_precision)
+        self.lat_places = lat_places
+        return distance
 
-    def distance_in_km(self, other_hash):
-        return (self.distance(other_hash) * 6373).quantize(self.km_precision)
+    def distance_in_km(self, other):
+        lat_places = self.lat_places
+        self.lat_places = min(self.lat_places, other.lat_places)
+        distance = (self.distance(other) * 6373).quantize(self.km_precision)
+        self.lat_places = lat_places
+        return distance
