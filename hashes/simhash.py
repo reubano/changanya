@@ -16,6 +16,7 @@ class Simhash(Hashtype):
     def __init__(self, tokens, hashbits=96):
         _hash = self.create_hash(tokens)
         super(Simhash, self).__init__(_hash, hashbits=hashbits)
+        self.hashtype = Simhash
 
     def create_hash(self, tokens):
         """Calculates a Charikar simhash with appropriate bitlength.
@@ -64,16 +65,3 @@ class Simhash(Hashtype):
                 x = -2
 
             return x
-
-    def similarity(self, other_hash):
-        """Calculate how similar this hash is from another Simhash.
-        Returns a float from 0.0 to 1.0 (linear distribution, inclusive)
-        """
-        if type(other_hash) != self:
-            raise TypeError('Hashes must be of same type to find similarity')
-
-        if self.hashbits != other_hash.hashbits:
-            raise ValueError('Hashes must be of equal size to find similarity')
-
-        numerator = self.hashbits - self.hamming_distance(other_hash)
-        return numerator / self.hashbits

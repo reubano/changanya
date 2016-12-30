@@ -37,6 +37,7 @@ TRAN = [ord(x) for x in _TRAN]
 
 class Nilsimsa(Hashtype):
     def __init__(self, value='', hashbits=256):
+        self.hashtype = Nilsimsa
         self.count = 0            # num characters seen
         self.acc = [0] * 256      # accumulators for computing digest
         self.last = [-1] * 4    # last four seen characters (-1 until set)
@@ -110,16 +111,3 @@ class Nilsimsa(Hashtype):
             self.last = [ch] + self.last[:3]
 
         return self._digest()
-
-    def similarity(self, other_hash):
-        """Calculate how different this hash is from another Nilsimsa.
-        Returns a float from 0.0 to 1.0 (inclusive)
-        """
-        if type(other_hash) != self:
-            raise TypeError('Hashes must be of same type to find similarity')
-
-        if self.hashbits != other_hash.hashbits:
-            raise ValueError('Hashes must be of equal size to find similarity')
-
-        numerator = self.hashbits - self.hamming_distance(other_hash)
-        return numerator / self.hashbits
