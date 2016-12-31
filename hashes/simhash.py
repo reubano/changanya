@@ -6,7 +6,7 @@ Implementation of Charikar similarity hashes in Python.
 Most useful for creating 'fingerprints' of documents or metadata
 so you can quickly find duplicates or cluster items.
 
-Part of python-hashes by sangelone. See README and LICENSE.
+Part of changanya by reubano. See README and LICENSE.
 """
 import itertools as it
 

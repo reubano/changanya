@@ -9,7 +9,7 @@ instead of the usual bag-of-words model where order doesn't matter.
 
 Related paper: http://spdp.dti.unimi.it/papers/pdcs04.pdf
 
-Part of python-hashes by sangelone. See README and LICENSE.
+Part of changanya by reubano. See README and LICENSE.
 """
 
 from .hashtype import Hashtype

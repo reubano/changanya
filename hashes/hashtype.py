@@ -3,7 +3,7 @@
 """
 Base class from which hash types can be created.
 
-Part of python-hashes by sangelone. See README and LICENSE.
+Part of changanya by reubano. See README and LICENSE.
 """
 from functools import total_ordering
 

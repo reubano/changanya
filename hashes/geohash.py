@@ -14,7 +14,7 @@ precision degradation, nearby places will often (but not always)
 present similar prefixes. On the other side, the longer a shared
 prefix is, the closer the two places are.
 
-Part of python-hashes by sangelone. See README and LICENSE.
+Part of changanya by reubano. See README and LICENSE.
 Based on code by Hiroaki Kawai <kawai@iij.ad.jp> and geohash.org
 """
 

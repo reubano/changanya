@@ -2,12 +2,12 @@
 
 from setuptools import setup, find_packages
 
-setup(name='python-hashes',
+setup(name='changanya',
       version='0.2.0',
       description='Library of interesting (non-cryptographic) hashes in pure Python.',
-      author='sangelone',
-      author_email='angelone@gmail.com',
-      url='http://github.com/sangelone/python-hashes',
-      download_url='http://github.com/sangelone/python-hashes/downloads',
+      author='reubano',
+      author_email='reubano@gmail.com',
+      url='http://github.com/reubano/changanya',
+      download_url='http://github.com/reubano/changanya/downloads',
       packages=find_packages(),
       )

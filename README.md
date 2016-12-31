@@ -1,9 +1,9 @@
-#python-hashes
+# changanya
 
 Interesting (non-cryptographic) hashes implemented in pure Python. Included so far:
 
  * Bloom filters
- * Charikar similarity hashes
+ * Simhash (Charikar similarity hashes)
  * Nilsimsa signatures
  * geohashes
 
