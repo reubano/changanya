@@ -21,7 +21,7 @@ import hashlib
 
 from functools import reduce
 
-from .hashtype import Hashtype
+from changanya.hashtype import Hashtype
 
 
 class Bloomfilter(Hashtype):
