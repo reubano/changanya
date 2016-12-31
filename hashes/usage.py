@@ -46,6 +46,35 @@ basic usage::
     Traceback (most recent call last):
     ValueError: Hashes must be of equal size to find similarity
 
+    >>> # Use the Simhash Index
+    >>> from hashes.simhash import SimhashIndex
+    >>>
+    >>> data = [
+    ...     'How are you? I Am fine. blar blar blar blar blar Thanks.',
+    ...     'How are you i am fine. blar blar blar blar blar than',
+    ...     'This is simhash test.']
+    >>> hashes = [Simhash(text) for text in data]
+    >>> for simhash in hashes:
+    ...     print(simhash.hash)
+    1318951168287673739
+    1318951168283479435
+    13366613251191922586
+    >>> index = SimhashIndex(hashes)
+    >>> len(index.bucket)
+    7
+    >>> simhash = Simhash('How are you im fine. blar blar blar blar thank')
+    >>> dupe = next(index.find_dupes(simhash))
+    >>> dupe.hash == hashes[0].hash
+    True
+    >>> index.add(simhash)
+    >>> simhash.hash
+    1318986352659762571
+    >>> dupe = next(index.find_dupes(simhash))
+    >>> dupe.hash == simhash.hash
+    True
+
+
+
     >>> # Here is the basic Bloom filter use case
     >>> from hashes.bloom import Bloomfilter
     >>>

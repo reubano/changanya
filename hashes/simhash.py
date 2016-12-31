@@ -8,6 +8,7 @@ so you can quickly find duplicates or cluster items.
 
 Part of python-hashes by sangelone. See README and LICENSE.
 """
+from collections import defaultdict
 
 from .hashtype import Hashtype
 
@@ -65,3 +66,47 @@ class Simhash(Hashtype):
                 _hash += 1 << i
 
         return _hash
+
+
+# http://leons.im/posts/a-python-implementation-of-simhash-algorithm/
+class SimhashIndex(object):
+    def __init__(self, simhashes, bits=2, num_blocks=None):
+        self.simhashes = simhashes
+        self.hashbits = simhashes[0].hashbits
+        self.bits = bits
+        self.num_blocks = num_blocks or bits + 1
+        max_blocks = self.hashbits // 2
+
+        if self.num_blocks > max_blocks:
+            raise ValueError('Number of blocks must not exceed %i' % max_blocks)
+
+        self.block_range = range(self.num_blocks)
+        self.bucket = defaultdict(set)
+        [self.add(simhash) for simhash in simhashes]
+
+    def add(self, simhash):
+        assert simhash.hashbits == self.hashbits
+
+        for key in self.get_keys(simhash):
+            self.bucket[key].add(simhash)
+
+    @property
+    def offsets(self):
+        # http://www.wwwconference.org/www2007/papers/paper215.pdf
+        return [self.hashbits // self.num_blocks * i for i in self.block_range]
+
+    def get_keys(self, simhash):
+        for i, offset in enumerate(self.offsets):
+            if i == len(self.offsets) - 1:
+                m = 2 ** (self.hashbits - offset) - 1
+            else:
+                m = 2 ** (self.offsets[i + 1] - offset) - 1
+
+            c = simhash.hash >> offset & m
+            yield '%x:%x' % (c, i)
+
+    def find_dupes(self, simhash):
+        for key in self.get_keys(simhash):
+            for simhash in self.bucket[key]:
+                if simhash.hamming_distance(simhash) <= self.bits:
+                    yield simhash
