@@ -59,9 +59,9 @@ basic usage::
     1318951168287673739
     1318951168283479435
     13366613251191922586
-    >>> index = SimhashIndex(hashes)
+    >>> index = SimhashIndex(hashes, num_blocks=6)
     >>> len(index.bucket)
-    7
+    13
     >>> simhash = Simhash('How are you im fine. blar blar blar blar thank')
     >>> dupe = next(index.find_dupes(simhash))
     >>> dupe.hash == hashes[0].hash
@@ -72,8 +72,9 @@ basic usage::
     >>> dupe = next(index.find_dupes(simhash))
     >>> dupe.hash == simhash.hash
     True
-
-
+    >>> result = next(index.find_all_dupes())
+    >>> (result[0], result[1]) == (hashes[1], hashes[0])
+    True
 
     >>> # Here is the basic Bloom filter use case
     >>> from hashes.bloom import Bloomfilter
