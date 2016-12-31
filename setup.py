@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='changanya',
-      version='0.3.0',
+      version='0.3.1',
       description='Library of interesting (non-cryptographic) hashes in pure Python.',
       author='reubano',
       author_email='reubano@gmail.com',
