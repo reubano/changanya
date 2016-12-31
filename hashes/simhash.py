@@ -118,7 +118,7 @@ class Permuter(object):
 
 # http://leons.im/posts/a-python-implementation-of-simhash-algorithm/
 class SimhashIndex(object):
-    def __init__(self, simhashes, bits=2, num_blocks=None):
+    def __init__(self, simhashes, bits=2, num_blocks=6):
         self.simhashes = simhashes
         self.hashbits = simhashes[0].hashbits
         self.bits = bits
