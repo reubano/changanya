@@ -37,6 +37,7 @@ KM_PLACES_OFFSET = -KM_PRECISION_OFFSET
 MI_PRECISION_OFFSET = 1
 MI_PLACES_OFFSET = -MI_PRECISION_OFFSET
 
+
 # TODO: account for 2nd link and cases where displayed decimal places < 0
 class Geohash(Hashtype):
     # Not the actual RFC 4648 standard; a variation

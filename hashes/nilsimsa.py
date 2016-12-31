@@ -42,7 +42,7 @@ class Nilsimsa(Hashtype):
         super(Nilsimsa, self).__init__(hashbits)
         self.count = 0                  # num characters seen
         self.acc = [0] * self.hashbits  # accumulators for computing digest
-        self.last = [-1] * 4            # last four seen characters (-1 until set)
+        self.last = [-1] * 4            # last four seen chars (-1 until set)
         self.hash = self.create_hash(data)
 
     def _tran3(self, a, b, c, n):
