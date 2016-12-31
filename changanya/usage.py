@@ -1,36 +1,36 @@
 """
 basic usage::
     >>> # Here is a quick simhash example
-    >>> from hashes.simhash import Simhash
+    >>> from changanya.simhash import Simhash
     >>>
     >>> hash1 = Simhash('This is a test string one.')
     >>> hash2 = Simhash('This is a test string TWO.')
     >>> hash1  # doctest: +ELLIPSIS
-    <hashes.simhash.Simhash object at 0x...>
+    <changanya.simhash.Simhash object at 0x...>
     >>> print(hash1)
-    10203485745788768176630988232
+    11537571312501063112
     >>> print(hash2)
-    10749932022170787621889701832
+    11537571196679550920
     >>> hash1.hex()
-    '0x20f82026a01daffae45cfdc8'
+    '0xa01daffae45cfdc8'
     >>> # % of bits in common (calculated via hamming distance)
     >>> hash1.similarity(hash2)
-    0.875
+    0.890625
     >>> int(hash1) - int(hash2)
-    -546446276382019445258713600
+    115821512192
     >>> hash1 < hash2       # Hashes of the same type can be compared
-    True
+    False
     >>> a_list = [hash2, hash1]
     >>> for item in a_list:
     ...     print(item)
-    10749932022170787621889701832
-    10203485745788768176630988232
+    11537571196679550920
+    11537571312501063112
     >>>
-    >>> a_list.sort()       # Because comparisons work, so does sorting
+    >>> a_list.sort(reverse=True)  # Because comparisons work, so does sorting
     >>> for item in a_list:
     ...     print(item)
-    10203485745788768176630988232
-    10749932022170787621889701832
+    11537571312501063112
+    11537571196679550920
 
     >>> # It can be extended to any bitlength using the `hashbits` parameter.
 
@@ -46,8 +46,38 @@ basic usage::
     Traceback (most recent call last):
     ValueError: Hashes must be of equal size to find similarity
 
+    >>> # Use the Simhash Index
+    >>> from changanya.simhash import SimhashIndex
+    >>>
+    >>> data = [
+    ...     'How are you? I Am fine. blar blar blar blar blar Thanks.',
+    ...     'How are you i am fine. blar blar blar blar blar than',
+    ...     'This is simhash test.']
+    >>> hashes = [Simhash(text) for text in data]
+    >>> for simhash in hashes:
+    ...     print(simhash.hash)
+    1318951168287673739
+    1318951168283479435
+    13366613251191922586
+    >>> index = SimhashIndex(hashes, num_blocks=6)
+    >>> len(index.bucket)
+    13
+    >>> simhash = Simhash('How are you im fine. blar blar blar blar thank')
+    >>> dupe = next(index.find_dupes(simhash))
+    >>> dupe.hash == hashes[0].hash
+    True
+    >>> index.add(simhash)
+    >>> simhash.hash
+    1318986352659762571
+    >>> dupe = next(index.find_dupes(simhash))
+    >>> dupe.hash == simhash.hash
+    True
+    >>> result = next(index.find_all_dupes())
+    >>> (result[0], result[1]) == (hashes[1], hashes[0])
+    True
+
     >>> # Here is the basic Bloom filter use case
-    >>> from hashes.bloom import Bloomfilter
+    >>> from changanya.bloom import Bloomfilter
     >>>
     >>> hash1 = Bloomfilter('test')
     >>> hash1.hashbits, hash1.num_hashes     # default values (see below)
@@ -79,7 +109,7 @@ basic usage::
     220
 
     >>> # Geohash example
-    >>> from hashes.geohash import Geohash
+    >>> from changanya.geohash import Geohash
     >>>
     >>> here = Geohash('33.050500000000', '-1.024', precision=4)
     >>> there = Geohash('34.500000000', '-2.500', precision=4)

@@ -14,7 +14,7 @@ precision degradation, nearby places will often (but not always)
 present similar prefixes. On the other side, the longer a shared
 prefix is, the closer the two places are.
 
-Part of python-hashes by sangelone. See README and LICENSE.
+Part of changanya by reubano. See README and LICENSE.
 Based on code by Hiroaki Kawai <kawai@iij.ad.jp> and geohash.org
 """
 
@@ -37,10 +37,11 @@ KM_PLACES_OFFSET = -KM_PRECISION_OFFSET
 MI_PRECISION_OFFSET = 1
 MI_PLACES_OFFSET = -MI_PRECISION_OFFSET
 
+
 # TODO: account for 2nd link and cases where displayed decimal places < 0
 class Geohash(Hashtype):
     # Not the actual RFC 4648 standard; a variation
-    def __init__(self, latitude=0, longitude=0, precision=12):
+    def __init__(self, latitude=0, longitude=0, precision=8):
         dec_latitude = Decimal(latitude)
         dec_longitude = Decimal(longitude)
 
