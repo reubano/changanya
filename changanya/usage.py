@@ -73,8 +73,13 @@ basic usage::
     >>> dupe == simhash
     True
     >>> result = next(index.find_all_dupes())
-    >>> (result[0], result[1]) == (hashes[1], hashes[0])
+    >>> dupe1, dupe2 = result
+    >>> (dupe1, dupe2) == (hashes[1], hashes[0])
     True
+    >>> dupe1.similarity(dupe2)
+    0.984375
+    >>> dupe1.hamming_distance(dupe2)
+    1
 
     >>> # Here is the basic Bloom filter use case
     >>> from changanya.bloom import Bloomfilter

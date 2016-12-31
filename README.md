@@ -20,12 +20,12 @@ To install the latest version, you can `pip install --user changanya` or (inside
 
 Charikar similarity is most useful for creating 'fingerprints' of
 documents or metadata so you can quickly find duplicates or cluster
-items. It operates on lists of strings, treating each word as its
+items. It operates on strings, treating each word as its
 own token (order does not matter, as in the bag-of-words model).
 
 ### Basic usage
 
-Here is a quick example session showing off similarity hashes:
+Here is a quick example showing off similarity hashes:
 
 ```python
 >>> from changanya.simhash import Simhash
@@ -35,7 +35,7 @@ Here is a quick example session showing off similarity hashes:
 >>> hash1
 <changanya.simhash.Simhash object at 0x...>
 
->>> # All hash objects print there hash
+>>> # All hash objects print their hash
 >>> print(hash1)
 11537571312501063112
 >>> print(hash2)
@@ -47,21 +47,19 @@ Here is a quick example session showing off similarity hashes:
 >>> # according to their hamming distance)
 >>> hash1.similarity(hash2)
 0.890625
->>> int(hash1) - int(hash2)
-115821512192
 
 >>> # Hashes of the same type can be compared
 >>> hash1 < hash2
 False
->>> a_list = [hash2, hash1]
->>> for item in a_list:
+>>> hashes = [hash2, hash1]
+>>> for item in hashes:
 ...     print(item)
 11537571196679550920
 11537571312501063112
 
 >>> # Because comparisons work, so does sorting
->>> a_list.sort(reverse=True)
->>> for item in a_list:
+>>> hashes.sort(reverse=True)
+>>> for item in hashes:
 ...     print(item)
 11537571312501063112
 11537571196679550920
@@ -106,10 +104,10 @@ This functionality was ported from [leonsim/simhash](https://github.com/leonsim/
 
 >>> # Initialize the Simhash index
 >>> # By default, the index will divide the hash into 6 blocks and consider
->>> # hashes duplicate that have, at most, 2 bits that differ
+>>> # hashes to be duplicates if they have, at most, 2 bits that differ
 >>> index = SimhashIndex(hashes)
 >>>
->>> # Create a Simhash object of for you want to find duplicate content
+>>> # Create a Simhash object for the content you want to find duplicates of
 >>> simhash = Simhash('How are you im fine. blar blar blar blar thank')
 >>> simhash.hash
 1318986352659762571
@@ -128,7 +126,7 @@ True
 >>> # object we created above
 >>> index.add(simhash)
 
->>> # This time the first detected duplicate is the simhash object we just
+>>> # This time, the first detected duplicate is the simhash object we just
 >>> # added
 >>> first_dupe = next(index.find_dupes(simhash))
 >>> first_dupe == simhash
@@ -154,8 +152,15 @@ This functionality was ported from [seomoz/simhash-cpp](https://github.com/seomo
 
 >>> # Here, we see that the first detected pair of duplicates are the first
 >>> # two entries in the `data` we initially created
->>> (result[0], result[1]) == (hashes[1], hashes[0])
+>>> (dupe1, dupe2) == (hashes[1], hashes[0])
 True
+>>> # And, as expected, they are very similar
+>>> dupe1.similarity(dupe2)
+0.984375
+>>>
+>>> # This is because they only differ by one bit
+>>> dupe1.hamming_distance(dupe2)
+1
 ```
 
 [2] https://moz.com/devblog/near-duplicate-detection/
@@ -169,7 +174,7 @@ not removed.
 
 Uses SHA-1 from Python's hashlib, but you can swap that out with any other
 160-bit hash function. Also keep in mind that it starts off very sparse and
-become more dense (and false-positive-prone) as you add more elements.
+becomes more dense (and false-positive-prone) as you add more elements.
 
 Here is the basic use case:
 
@@ -190,7 +195,7 @@ True
 ```
 
 The hash length and number of internal hashes used for the digest are
-automatically determined using your input values `capacity` and `false_positive_rate`. The capacity is the upper bound on the number of items
+automatically determined using your values for `capacity` and `false_positive_rate`. The capacity is the upper bound on the number of items
 you wish to add. A lower false-positive rate will create a larger, but more accurate, filter.
 
 ```python
@@ -240,8 +245,8 @@ It's very easy to use:
 ```python
 >>> from changanya.geohash import Geohash
 >>>
->>> # Enter the locations as (<latitude>, <longitude>), and use strings
->>> # to avoid floating point imprecision
+>>> # Enter locations as (<latitude>, <longitude>), and use strings to avoid
+>>> # floating point imprecision
 >>> here = Geohash('33.050500000000', '-1.024', precision=4)
 >>> there = Geohash('34.500000000', '-2.500', precision=4)
 
