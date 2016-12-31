@@ -14,7 +14,7 @@ from collections import defaultdict
 from operator import attrgetter
 from functools import reduce
 
-from .hashtype import Hashtype
+from changanya.hashtype import Hashtype
 
 DEF_HASHBITS = 64
 

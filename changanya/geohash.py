@@ -21,7 +21,7 @@ Based on code by Hiroaki Kawai <kawai@iij.ad.jp> and geohash.org
 import math
 
 from decimal import Decimal
-from .hashtype import Hashtype
+from changanya.hashtype import Hashtype
 
 _BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz'
 _BASE32_MAP = {_BASE32[i]: i for i in range(len(_BASE32))}
