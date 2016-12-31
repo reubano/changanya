@@ -10,7 +10,7 @@ Interesting (non-cryptographic) hashes implemented in pure Python 3. Included so
 Each hash is implemented as its own type extended from the base class `Hashtype`.
 
 This is a fork of [sangelone's](https://github.com/sangelone/changanya) repo
-that I ported to Python 3 and added various enhancements such as [Decimal precision](#decimal) and [Simhash duplication detection](#deduplication).
+that I ported to Python 3 and added various enhancements such as [decimal precision](#precision) and [duplication detection](#deduplication).
 
 To install the latest version, you can `pip install --user changanya` or (inside a [virtualenv](http://www.virtualenv.org/en/latest/index.html)) `pip install changanya`.
 
@@ -66,8 +66,7 @@ False
 11537571312501063112
 11537571196679550920
 
->>> # You can extended hashes to any bitlength using the `hashbits`
->>> # parameter.
+>>> # You can extended hashes to any bitlength using the `hashbits` parameter.
 >>> hash3 = Simhash('this is yet another test', hashbits=8)
 >>> hash3.hex()
 '0x18'
@@ -161,7 +160,7 @@ True
 
 [2] https://moz.com/devblog/near-duplicate-detection/
 
-###bloom
+## Bloom
 
 The Bloom filter is a space-efficient probabilistic data structure that is
 used to test whether an element is a member of a set. False positives are
@@ -218,7 +217,7 @@ but remains sparse until you are done adding the projected number of items:
 ```
 
 
-###geohash
+## Geohash
 
 Geohash is a latitude/longitude geocode system invented by
 Gustavo Niemeyer when writing the web service at geohash.org, and put
@@ -233,6 +232,8 @@ precision degradation, nearby places will often (but not always)
 present similar prefixes. On the other side, the longer a shared
 prefix is, the closer the two places are. For this implementation,
 the default precision is (at most) 8 (base32) characters long [1].
+
+### Basic Usage
 
 It's very easy to use:
 
@@ -267,8 +268,14 @@ Decimal('131.24743')
 (Decimal('33.0505000000'), Decimal('-1.024'))
 >>> here.distance_in_miles(there)
 Decimal('131.24743425')
+```
 
->>> # But we can't gain more precision than we started with
+### Precision
+
+GeoHash use the Decimal type to enforce precision
+
+```python
+>>> # We can't gain more precision than we started with
 >>> here.encode(precision=16)
 >>>
 >>> # The initial location only provided a precision of 10
@@ -292,7 +299,7 @@ Decimal('131.24743425')
 [1] In order to achieve this level of precision, you must input a latitude with
 at least 10 decimal places.
 
-###nilsimsa
+## Nilsimsa
 
 Most useful for filtering spam by creating signatures of documents to
 find near-duplicates. Charikar similarity hashes can be used on any
@@ -300,7 +307,7 @@ datastream, whereas Nilsimsa is a digest ideal for documents (language
 doesn't matter) because it uses histograms of *rolling* trigraphs instead
 of the usual bag-of-words model where order doesn't matter.
 
-[Related paper](http://spdp.dti.unimi.it/papers/pdcs04.pdf) and [original reference](http://ixazon.dynip.com/~cmeclax/nilsimsa.html).
+[Related paper](http://spdp.dti.unimi.it/papers/pdcs04.pdf) and [original reference](https://web.archive.org/web/20150512025912/http://ixazon.dynip.com/~cmeclax/nilsimsa.html).
 
 *The Nilsimsa hash does not output the same data as the
 reference implementation.* **Use at your own risk.**
