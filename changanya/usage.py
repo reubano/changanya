@@ -55,7 +55,7 @@ basic usage::
     ...     'This is simhash test.']
     >>> hashes = [Simhash(text) for text in data]
     >>> for simhash in hashes:
-    ...     print(simhash.hash)
+    ...     print(simhash)
     1318951168287673739
     1318951168283479435
     13366613251191922586
@@ -64,13 +64,13 @@ basic usage::
     13
     >>> simhash = Simhash('How are you im fine. blar blar blar blar thank')
     >>> dupe = next(index.find_dupes(simhash))
-    >>> dupe.hash == hashes[0].hash
+    >>> dupe == hashes[0]
     True
     >>> index.add(simhash)
     >>> simhash.hash
     1318986352659762571
     >>> dupe = next(index.find_dupes(simhash))
-    >>> dupe.hash == simhash.hash
+    >>> dupe == simhash
     True
     >>> result = next(index.find_all_dupes())
     >>> (result[0], result[1]) == (hashes[1], hashes[0])

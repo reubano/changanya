@@ -99,7 +99,7 @@ This functionality was ported from [leonsim/simhash](https://github.com/leonsim/
 >>> hashes = [Simhash(text) for text in data]
 >>>
 >>> for simhash in hashes:
-...     print(simhash.hash)
+...     print(simhash)
 1318951168287673739
 1318951168283479435
 13366613251191922586
@@ -121,7 +121,7 @@ This functionality was ported from [leonsim/simhash](https://github.com/leonsim/
 
 >>> # Here, we see that the first detected duplicate is the first entry in
 >>> # the `data` we initially created
->>> first_dupe.hash == hashes[0].hash
+>>> first_dupe == hashes[0]
 True
 
 >>> # You can also add new items to the index. Here we add the simhash
@@ -131,7 +131,7 @@ True
 >>> # This time the first detected duplicate is the simhash object we just
 >>> # added
 >>> first_dupe = next(index.find_dupes(simhash))
->>> first_dupe.hash == simhash.hash
+>>> first_dupe == simhash
 True
 ```
 
