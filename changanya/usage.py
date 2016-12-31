@@ -1,12 +1,12 @@
 """
 basic usage::
     >>> # Here is a quick simhash example
-    >>> from hashes.simhash import Simhash
+    >>> from changanya.simhash import Simhash
     >>>
     >>> hash1 = Simhash('This is a test string one.')
     >>> hash2 = Simhash('This is a test string TWO.')
     >>> hash1  # doctest: +ELLIPSIS
-    <hashes.simhash.Simhash object at 0x...>
+    <changanya.simhash.Simhash object at 0x...>
     >>> print(hash1)
     11537571312501063112
     >>> print(hash2)
@@ -47,7 +47,7 @@ basic usage::
     ValueError: Hashes must be of equal size to find similarity
 
     >>> # Use the Simhash Index
-    >>> from hashes.simhash import SimhashIndex
+    >>> from changanya.simhash import SimhashIndex
     >>>
     >>> data = [
     ...     'How are you? I Am fine. blar blar blar blar blar Thanks.',
@@ -77,7 +77,7 @@ basic usage::
     True
 
     >>> # Here is the basic Bloom filter use case
-    >>> from hashes.bloom import Bloomfilter
+    >>> from changanya.bloom import Bloomfilter
     >>>
     >>> hash1 = Bloomfilter('test')
     >>> hash1.hashbits, hash1.num_hashes     # default values (see below)
@@ -109,7 +109,7 @@ basic usage::
     220
 
     >>> # Geohash example
-    >>> from hashes.geohash import Geohash
+    >>> from changanya.geohash import Geohash
     >>>
     >>> here = Geohash('33.050500000000', '-1.024', precision=4)
     >>> there = Geohash('34.500000000', '-2.500', precision=4)

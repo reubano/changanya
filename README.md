@@ -28,12 +28,12 @@ own token (order does not matter, as in the bag-of-words model).
 Here is a quick example session showing off similarity hashes:
 
 ```python
-    >>> from hashes.simhash import Simhash
+    >>> from changanya.simhash import Simhash
     >>>
     >>> hash1 = Simhash('This is a test string one.')
     >>> hash2 = Simhash('This is a test string TWO.')
     >>> hash1
-    <hashes.simhash.Simhash object at 0x...>
+    <changanya.simhash.Simhash object at 0x...>
 
     >>> # All hash objects print there hash
     >>> print(hash1)
@@ -87,7 +87,7 @@ Here is a quick example session showing off similarity hashes:
 This functionality was ported from [leonsim/simhash](https://github.com/leonsim/simhash) [1].
 
 ```python
-    >>> from hashes.simhash import SimhashIndex
+    >>> from changanya.simhash import SimhashIndex
     >>>
     >>> # Create some data to hash
     >>> data = [
@@ -175,7 +175,7 @@ become more dense (and false-positive-prone) as you add more elements.
 Here is the basic use case:
 
 ```python
-    >>> from hashes.bloom import Bloomfilter
+    >>> from changanya.bloom import Bloomfilter
     >>> hash1 = Bloomfilter('test')
     >>> hash1.hashbits, hash1.num_hashes     # default values (see below)
     (28756, 7)
@@ -237,7 +237,7 @@ the default precision is (at most) 8 (base32) characters long [1].
 It's very easy to use:
 
 ```python
-    >>> from hashes.geohash import Geohash
+    >>> from changanya.geohash import Geohash
     >>>
     >>> # Enter the locations as (<latitude>, <longitude>), and use strings
     >>> # to avoid floating point imprecision
