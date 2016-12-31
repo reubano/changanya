@@ -316,3 +316,7 @@ of the usual bag-of-words model where order doesn't matter.
 
 *The Nilsimsa hash does not output the same data as the
 reference implementation.* **Use at your own risk.**
+
+## License
+
+changanya is distributed under the [MIT License](http://opensource.org/licenses/MIT).
