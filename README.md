@@ -307,7 +307,7 @@ datastream, whereas Nilsimsa is a digest ideal for documents (language
 doesn't matter) because it uses histograms of *rolling* trigraphs instead
 of the usual bag-of-words model where order doesn't matter.
 
-[Related paper](http://spdp.dti.unimi.it/papers/pdcs04.pdf) and [original reference](https://web.archive.org/web/20150512025912/http://ixazon.dynip.com/~cmeclax/nilsimsa.html).
+[Related paper](https://web.archive.org/web/20121206233111/http://spdp.dti.unimi.it/papers/pdcs04.pdf) and [original reference](https://web.archive.org/web/20150512025912/http://ixazon.dynip.com/~cmeclax/nilsimsa.html).
 
 *The Nilsimsa hash does not output the same data as the
 reference implementation.* **Use at your own risk.**
