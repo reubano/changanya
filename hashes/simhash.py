@@ -11,9 +11,11 @@ Part of python-hashes by sangelone. See README and LICENSE.
 
 from .hashtype import Hashtype
 
+DEF_HASHBITS = 64
+
 
 class Simhash(Hashtype):
-    def __init__(self, data, hashbits=96):
+    def __init__(self, data, hashbits=DEF_HASHBITS):
         self.hashtype = Simhash
         super(Simhash, self).__init__(hashbits)
         self.hash = self.create_hash(data)

@@ -8,29 +8,29 @@ basic usage::
     >>> hash1  # doctest: +ELLIPSIS
     <hashes.simhash.Simhash object at 0x...>
     >>> print(hash1)
-    10203485745788768176630988232
+    11537571312501063112
     >>> print(hash2)
-    10749932022170787621889701832
+    11537571196679550920
     >>> hash1.hex()
-    '0x20f82026a01daffae45cfdc8'
+    '0xa01daffae45cfdc8'
     >>> # % of bits in common (calculated via hamming distance)
     >>> hash1.similarity(hash2)
-    0.875
+    0.890625
     >>> int(hash1) - int(hash2)
-    -546446276382019445258713600
+    115821512192
     >>> hash1 < hash2       # Hashes of the same type can be compared
-    True
+    False
     >>> a_list = [hash2, hash1]
     >>> for item in a_list:
     ...     print(item)
-    10749932022170787621889701832
-    10203485745788768176630988232
+    11537571196679550920
+    11537571312501063112
     >>>
-    >>> a_list.sort()       # Because comparisons work, so does sorting
+    >>> a_list.sort(reverse=True)  # Because comparisons work, so does sorting
     >>> for item in a_list:
     ...     print(item)
-    10203485745788768176630988232
-    10749932022170787621889701832
+    11537571312501063112
+    11537571196679550920
 
     >>> # It can be extended to any bitlength using the `hashbits` parameter.
 

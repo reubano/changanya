@@ -33,22 +33,24 @@ _TRAN = (
     "\xF1\xCD\xE4\x6A\xE7\xA9\xFD\xC4\x37\xC8\xD2\xF6\xDF\x58\x72\x4E")
 
 TRAN = [ord(x) for x in _TRAN]
+DEF_HASHBITS = 256
 
 
 class Nilsimsa(Hashtype):
-    def __init__(self, data='', hashbits=256):
+    def __init__(self, data='', hashbits=DEF_HASHBITS):
         self.hashtype = Nilsimsa
-        self.count = 0            # num characters seen
-        self.acc = [0] * 256      # accumulators for computing digest
-        self.last = [-1] * 4      # last four seen characters (-1 until set)
         super(Nilsimsa, self).__init__(hashbits)
+        self.count = 0                  # num characters seen
+        self.acc = [0] * self.hashbits  # accumulators for computing digest
+        self.last = [-1] * 4            # last four seen characters (-1 until set)
         self.hash = self.create_hash(data)
 
     def _tran3(self, a, b, c, n):
         """Get accumulator for a transition n between chars a, b, c."""
         multiple = (n + n + 1)
-        acc = (TRAN[(a + n) & 255] ^ TRAN[b] * multiple) + TRAN[(c) ^ TRAN[n]]
-        return acc & 255
+        index = (a + n) & (self.hashbits - 1)
+        acc = (TRAN[index] ^ TRAN[b] * multiple) + TRAN[(c) ^ TRAN[n]]
+        return acc & (self.hashbits - 1)
 
     def _digest(self):
         """Get digest of data seen thus far as a list of bytes."""
@@ -61,10 +63,10 @@ class Nilsimsa(Hashtype):
         elif self.count > 4:                   # otherwise 8 triplets/char less
             total = 8 * self.count - 28        # 28 'missed' during 'ramp-up'
 
-        threshold = total / 256                # threshold for accumulators
+        threshold = total / self.hashbits      # threshold for accumulators
         code = [0] * self.hashbits             # start with all zero bits
 
-        for i in range(256):                   # for all 256 accumulators
+        for i in range(self.hashbits):         # for all accumulators
             if self.acc[i] > threshold:        # if it meets the threshold
                 code[i >> 3] += 1 << (i & 7)   # set corresponding digest bit
 
