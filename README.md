@@ -10,7 +10,7 @@ Interesting (non-cryptographic) hashes implemented in pure Python 3. Included so
 Each hash is implemented as its own type extended from the base class `Hashtype`.
 
 This is a fork of [sangelone's](https://github.com/sangelone/changanya) repo
-that I ported to Python 3 and added various enhancements such as [decimal precision](#precision) and [duplication detection](#deduplication).
+that I ported to Python 3 and added various enhancements such as [decimal precision](#precision) and [duplicate detection](#deduplication).
 
 To install the latest version, you can `pip install --user changanya` or (inside a [virtualenv](http://www.virtualenv.org/en/latest/index.html)) `pip install changanya`.
 
@@ -20,12 +20,10 @@ To install the latest version, you can `pip install --user changanya` or (inside
 
 Charikar similarity is most useful for creating 'fingerprints' of
 documents or metadata so you can quickly find duplicates or cluster
-items. It operates on strings, treating each word as its
-own token (order does not matter, as in the bag-of-words model).
+items. It operates on strings by treating each word as its
+own token. Order does not matter, as in the bag-of-words model.
 
 ### Basic usage
-
-Here is a quick example showing off similarity hashes:
 
 ```python
 >>> from changanya.simhash import Simhash
@@ -40,15 +38,13 @@ Here is a quick example showing off similarity hashes:
 11537571312501063112
 >>> print(hash2)
 11537571196679550920
->>> hash1.hex()
-'0xa01daffae45cfdc8'
 
 >>> # Check the similarity of two hashes (calculated % of bits in common
 >>> # according to their hamming distance)
 >>> hash1.similarity(hash2)
 0.890625
 
->>> # Hashes of the same type can be compared
+>>> # You can compare hashes of the same type
 >>> hash1 < hash2
 False
 >>> hashes = [hash2, hash1]
@@ -64,7 +60,7 @@ False
 11537571312501063112
 11537571196679550920
 
->>> # You can extended hashes to any bitlength using the `hashbits` parameter.
+>>> # You can extend hashes to any bitlength using the `hashbits` parameter.
 >>> hash3 = Simhash('this is yet another test', hashbits=8)
 >>> hash3.hex()
 '0x18'
@@ -103,7 +99,8 @@ This functionality was ported from [leonsim/simhash](https://github.com/leonsim/
 13366613251191922586
 
 >>> # Initialize the Simhash index
->>> # By default, the index will divide the hash into 6 blocks and consider
+>>>
+>>> # By default, the index will divide each hash into 6 blocks and consider
 >>> # hashes to be duplicates if they have, at most, 2 bits that differ
 >>> index = SimhashIndex(hashes)
 >>>
@@ -172,9 +169,9 @@ used to test whether an element is a member of a set. False positives are
 possible, but false negatives are not. Elements can be added to the set but
 not removed.
 
-Uses SHA-1 from Python's hashlib, but you can swap that out with any other
-160-bit hash function. Also keep in mind that it starts off very sparse and
-becomes more dense (and false-positive-prone) as you add more elements.
+This implantation uses SHA-1 from Python's hashlib, but you can swap that out
+with any other 160-bit hash function. Also keep in mind that it starts off very
+sparse and becomes more dense (and false-positive-prone) as you add more elements.
 
 Here is the basic use case:
 
@@ -188,15 +185,15 @@ Here is the basic use case:
 True
 >>> 'holy diver' in hash1
 False
->>> for word in 'these are some tokens to add to the filter'.split():
-...     hash1.add(word)
->>> 'these' in hash1
+>>> [hash1.add(word) for word in 'some tokens to add to the filter'.split()]
+>>> 'tokens' in hash1
 True
 ```
 
 The hash length and number of internal hashes used for the digest are
-automatically determined using your values for `capacity` and `false_positive_rate`. The capacity is the upper bound on the number of items
-you wish to add. A lower false-positive rate will create a larger, but more accurate, filter.
+automatically determined using your values for `capacity` and `false_positive_rate`.
+The capacity is the upper bound on the number of items you wish to add. A lower
+false-positive rate will create a larger, but more accurate, filter.
 
 ```python
 >>> hash2 = Bloomfilter(capacity=100, false_positive_rate=0.01)
@@ -221,26 +218,20 @@ but remains sparse until you are done adding the projected number of items:
 1068
 ```
 
-
 ## Geohash
 
 Geohash is a latitude/longitude geocode system invented by
 Gustavo Niemeyer when writing the web service at geohash.org, and put
 into the public domain.
 
-It is a hierarchical spatial data structure which subdivides space
-into buckets of grid shape. Geohashes offer properties like
-arbitrary precision and the possibility of gradually removing
-characters from the end of the code to reduce its size (and
-gradually lose precision). As a consequence of the gradual
-precision degradation, nearby places will often (but not always)
-present similar prefixes. On the other side, the longer a shared
-prefix is, the closer the two places are. For this implementation,
-the default precision is (at most) 8 (base32) characters long [1].
+It is a hierarchical spatial data structure which subdivides space into grids.
+Geohashes offer properties like arbitrary precision and the possibility of
+gradually removing characters from the end of the code to reduce its size and precision. Consequently, nearby places will often (but not always) present
+similar prefixes. Also, the longer a shared prefix is, the closer the two
+places are to each other. For this implementation, the default precision is
+(at most) 8 (base32) characters long [1].
 
 ### Basic Usage
-
-It's very easy to use:
 
 ```python
 >>> from changanya.geohash import Geohash
@@ -277,7 +268,7 @@ Decimal('131.247434251')
 
 ### Precision
 
-GeoHash use the Decimal type to enforce precision
+GeoHash uses the [Decimal](https://docs.python.org/3/library/decimal.html) type to enforce precision
 
 ```python
 >>> # We can't gain more precision than we started with
@@ -285,7 +276,7 @@ GeoHash use the Decimal type to enforce precision
 >>> here.precision
 10
 >>>
->>> # The initial location only provided a precision of 10
+>>> # The is because the initial location only provided a precision of 10
 >>> here.max_precision
 10
 >>>
