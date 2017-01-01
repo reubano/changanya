@@ -168,9 +168,15 @@ class SimhashIndex(object):
             yield '%x:%x' % (key, i)
 
     def find_dupes(self, simhash):
+        seen = set()
+
         for key in self.get_keys(simhash):
             for entry in self.bucket[key]:
-                if simhash.hamming_distance(entry) <= self.bits:
+                entry_id = id(entry)
+                not_seen = entry_id not in seen
+
+                if not_seen and simhash.hamming_distance(entry) <= self.bits:
+                    seen.add(entry_id)
                     yield entry
 
     # https://github.com/seomoz/simhash-cpp/blob/master/src/simhash.cpp
