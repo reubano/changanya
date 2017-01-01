@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# vim: sw=4:ts=4:expandtab
+
 """
 basic usage::
     >>> # Here is a quick simhash example

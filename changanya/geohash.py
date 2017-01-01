@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# vim: sw=4:ts=4:expandtab
 
 """
 Geohash is a latitude / longitude geocode system invented by
