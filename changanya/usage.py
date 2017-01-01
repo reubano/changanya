@@ -117,7 +117,7 @@ basic usage::
     >>> from changanya.geohash import Geohash
     >>>
     >>> here = Geohash('33.050500000000', '-1.024', precision=4)
-    >>> there = Geohash('34.500000000', '-2.500', precision=4)
+    >>> there = Geohash('34.5000000000', '-2.500', precision=4)
     >>> here.hash, there.hash
     ('evzs', 'eynk')
     >>> here.decode()
@@ -132,7 +132,7 @@ basic usage::
     >>> here.decode()
     (Decimal('33.0505000000'), Decimal('-1.024'))
     >>> here.distance_in_miles(there)
-    Decimal('131.24743425')
+    Decimal('131.247434251')
 
     >>> # But we can't gain more precision than we started with
     >>> here.encode(precision=16)
@@ -143,5 +143,5 @@ basic usage::
     >>> here.decode()
     (Decimal('33.050500000000'), Decimal('-1.024'))
     >>> here.distance_in_miles(there)
-    Decimal('131.24743425')
+    Decimal('131.247434251')
 """

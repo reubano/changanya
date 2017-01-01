@@ -248,7 +248,7 @@ It's very easy to use:
 >>> # Enter locations as (<latitude>, <longitude>), and use strings to avoid
 >>> # floating point imprecision
 >>> here = Geohash('33.050500000000', '-1.024', precision=4)
->>> there = Geohash('34.500000000', '-2.500', precision=4)
+>>> there = Geohash('34.5000000000', '-2.500', precision=4)
 
 >>> # View the hashes
 >>> here.hash, there.hash
@@ -272,7 +272,7 @@ Decimal('131.24743')
 >>> here.decode()
 (Decimal('33.0505000000'), Decimal('-1.024'))
 >>> here.distance_in_miles(there)
-Decimal('131.24743425')
+Decimal('131.247434251')
 ```
 
 ### Precision
@@ -298,7 +298,7 @@ GeoHash use the Decimal type to enforce precision
 >>> # The given maximum precision equates to 8 decimal places when displaying
 >>> # miles
 >>> here.distance_in_miles(there)
-Decimal('131.24743425')
+Decimal('131.247434251')
 ```
 
 [1] In order to achieve this level of precision, you must input a latitude with
