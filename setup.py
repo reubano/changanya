@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
 
@@ -16,7 +17,8 @@ setup(
     tests_require=['nose>=1.3.7,<2.0.0'],
     license=license,
     zip_safe=False,
-    keywords=['hash', 'bloom', 'geohash', 'nilsimsa', 'simhash'],
+    keywords=[
+        'hash', 'bloom filter', 'geohash', 'nilsimsa', 'simhash', 'charikar'],
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Development Status :: 2 - Pre-Alpha',
