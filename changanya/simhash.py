@@ -196,4 +196,5 @@ class SimhashIndex(object):
             for i, simhash in enumerate(it.takewhile(end_func, permuted)):
                 for other in it.takewhile(end_func, permuted[i + 1:]):
                     if simhash.hamming_distance(other) <= self.bits:
-                        yield sorted([simhash, other], key=attrgetter('hash'))
+                        pair = [simhash, other]
+                        yield tuple(sorted(pair, key=attrgetter('hash')))
