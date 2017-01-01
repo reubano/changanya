@@ -148,9 +148,11 @@ class Geohash(Hashtype):
             t = _BASE32_MAP[i]
 
             if bit_length & 1:
-                lat, lon, lat_length, lon_length = magic(lat, lon, lat_length, lon_length, t)
+                lat, lon, lat_length, lon_length = magic(
+                    lat, lon, lat_length, lon_length, t)
             else:
-                lon, lat, lon_length, lat_length = magic(lon, lat, lon_length, lat_length, t)
+                lon, lat, lon_length, lat_length = magic(
+                    lon, lat, lon_length, lat_length, t)
 
             bit_length += 5
 
