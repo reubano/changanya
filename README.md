@@ -10,7 +10,7 @@ Interesting (non-cryptographic) hashes implemented in pure Python 3. Included so
 Each hash is implemented as its own type extended from the base class `Hashtype`.
 
 This is a fork of [sangelone's](https://github.com/sangelone/changanya) repo
-that I ported to Python 3 and added various enhancements such as [decimal precision](#precision) and [duplication detection](#deduplication).
+that I ported to Python 3 and added various enhancements such as [decimal precision](#precision) and [duplicate detection](#deduplication).
 
 To install the latest version, you can `pip install --user changanya` or (inside a [virtualenv](http://www.virtualenv.org/en/latest/index.html)) `pip install changanya`.
 
@@ -20,12 +20,10 @@ To install the latest version, you can `pip install --user changanya` or (inside
 
 Charikar similarity is most useful for creating 'fingerprints' of
 documents or metadata so you can quickly find duplicates or cluster
-items. It operates on lists of strings, treating each word as its
-own token (order does not matter, as in the bag-of-words model).
+items. It operates on strings by treating each word as its
+own token. Order does not matter, as in the bag-of-words model.
 
 ### Basic usage
-
-Here is a quick example session showing off similarity hashes:
 
 ```python
 >>> from changanya.simhash import Simhash
@@ -35,38 +33,34 @@ Here is a quick example session showing off similarity hashes:
 >>> hash1
 <changanya.simhash.Simhash object at 0x...>
 
->>> # All hash objects print there hash
+>>> # All hash objects print their hash
 >>> print(hash1)
 11537571312501063112
 >>> print(hash2)
 11537571196679550920
->>> hash1.hex()
-'0xa01daffae45cfdc8'
 
 >>> # Check the similarity of two hashes (calculated % of bits in common
 >>> # according to their hamming distance)
 >>> hash1.similarity(hash2)
 0.890625
->>> int(hash1) - int(hash2)
-115821512192
 
->>> # Hashes of the same type can be compared
+>>> # You can compare hashes of the same type
 >>> hash1 < hash2
 False
->>> a_list = [hash2, hash1]
->>> for item in a_list:
+>>> hashes = [hash2, hash1]
+>>> for item in hashes:
 ...     print(item)
 11537571196679550920
 11537571312501063112
 
 >>> # Because comparisons work, so does sorting
->>> a_list.sort(reverse=True)
->>> for item in a_list:
+>>> hashes.sort(reverse=True)
+>>> for item in hashes:
 ...     print(item)
 11537571312501063112
 11537571196679550920
 
->>> # You can extended hashes to any bitlength using the `hashbits` parameter.
+>>> # You can extend hashes to any bitlength using the `hashbits` parameter.
 >>> hash3 = Simhash('this is yet another test', hashbits=8)
 >>> hash3.hex()
 '0x18'
@@ -99,17 +93,18 @@ This functionality was ported from [leonsim/simhash](https://github.com/leonsim/
 >>> hashes = [Simhash(text) for text in data]
 >>>
 >>> for simhash in hashes:
-...     print(simhash.hash)
+...     print(simhash)
 1318951168287673739
 1318951168283479435
 13366613251191922586
 
 >>> # Initialize the Simhash index
->>> # By default, the index will divide the hash into 6 blocks and consider
->>> # hashes duplicate that have, at most, 2 bits that differ
+>>>
+>>> # By default, the index will divide each hash into 6 blocks and consider
+>>> # hashes to be duplicates if they have, at most, 2 bits that differ
 >>> index = SimhashIndex(hashes)
 >>>
->>> # Create a Simhash object of for you want to find duplicate content
+>>> # Create a Simhash object for the content you want to find duplicates of
 >>> simhash = Simhash('How are you im fine. blar blar blar blar thank')
 >>> simhash.hash
 1318986352659762571
@@ -121,17 +116,17 @@ This functionality was ported from [leonsim/simhash](https://github.com/leonsim/
 
 >>> # Here, we see that the first detected duplicate is the first entry in
 >>> # the `data` we initially created
->>> first_dupe.hash == hashes[0].hash
+>>> first_dupe == hashes[0]
 True
 
 >>> # You can also add new items to the index. Here we add the simhash
 >>> # object we created above
 >>> index.add(simhash)
 
->>> # This time the first detected duplicate is the simhash object we just
+>>> # This time, the first detected duplicate is the simhash object we just
 >>> # added
 >>> first_dupe = next(index.find_dupes(simhash))
->>> first_dupe.hash == simhash.hash
+>>> first_dupe == simhash
 True
 ```
 
@@ -154,8 +149,15 @@ This functionality was ported from [seomoz/simhash-cpp](https://github.com/seomo
 
 >>> # Here, we see that the first detected pair of duplicates are the first
 >>> # two entries in the `data` we initially created
->>> (result[0], result[1]) == (hashes[1], hashes[0])
+>>> (dupe1, dupe2) == (hashes[1], hashes[0])
 True
+>>> # And, as expected, they are very similar
+>>> dupe1.similarity(dupe2)
+0.984375
+>>>
+>>> # This is because they only differ by one bit
+>>> dupe1.hamming_distance(dupe2)
+1
 ```
 
 [2] https://moz.com/devblog/near-duplicate-detection/
@@ -167,9 +169,9 @@ used to test whether an element is a member of a set. False positives are
 possible, but false negatives are not. Elements can be added to the set but
 not removed.
 
-Uses SHA-1 from Python's hashlib, but you can swap that out with any other
-160-bit hash function. Also keep in mind that it starts off very sparse and
-become more dense (and false-positive-prone) as you add more elements.
+This implantation uses SHA-1 from Python's hashlib, but you can swap that out
+with any other 160-bit hash function. Also keep in mind that it starts off very
+sparse and becomes more dense (and false-positive-prone) as you add more elements.
 
 Here is the basic use case:
 
@@ -183,15 +185,15 @@ Here is the basic use case:
 True
 >>> 'holy diver' in hash1
 False
->>> for word in 'these are some tokens to add to the filter'.split():
-...     hash1.add(word)
->>> 'these' in hash1
+>>> [hash1.add(word) for word in 'some tokens to add to the filter'.split()]
+>>> 'tokens' in hash1
 True
 ```
 
 The hash length and number of internal hashes used for the digest are
-automatically determined using your input values `capacity` and `false_positive_rate`. The capacity is the upper bound on the number of items
-you wish to add. A lower false-positive rate will create a larger, but more accurate, filter.
+automatically determined using your values for `capacity` and `false_positive_rate`.
+The capacity is the upper bound on the number of items you wish to add. A lower
+false-positive rate will create a larger, but more accurate, filter.
 
 ```python
 >>> hash2 = Bloomfilter(capacity=100, false_positive_rate=0.01)
@@ -216,34 +218,28 @@ but remains sparse until you are done adding the projected number of items:
 1068
 ```
 
-
 ## Geohash
 
 Geohash is a latitude/longitude geocode system invented by
 Gustavo Niemeyer when writing the web service at geohash.org, and put
 into the public domain.
 
-It is a hierarchical spatial data structure which subdivides space
-into buckets of grid shape. Geohashes offer properties like
-arbitrary precision and the possibility of gradually removing
-characters from the end of the code to reduce its size (and
-gradually lose precision). As a consequence of the gradual
-precision degradation, nearby places will often (but not always)
-present similar prefixes. On the other side, the longer a shared
-prefix is, the closer the two places are. For this implementation,
-the default precision is (at most) 8 (base32) characters long [1].
+It is a hierarchical spatial data structure which subdivides space into grids.
+Geohashes offer properties like arbitrary precision and the possibility of
+gradually removing characters from the end of the code to reduce its size and precision. Consequently, nearby places will often (but not always) present
+similar prefixes. Also, the longer a shared prefix is, the closer the two
+places are to each other. For this implementation, the default precision is
+(at most) 8 (base32) characters long [1].
 
 ### Basic Usage
-
-It's very easy to use:
 
 ```python
 >>> from changanya.geohash import Geohash
 >>>
->>> # Enter the locations as (<latitude>, <longitude>), and use strings
->>> # to avoid floating point imprecision
+>>> # Enter locations as (<latitude>, <longitude>), and use strings to avoid
+>>> # floating point imprecision
 >>> here = Geohash('33.050500000000', '-1.024', precision=4)
->>> there = Geohash('34.500000000', '-2.500', precision=4)
+>>> there = Geohash('34.5000000000', '-2.500', precision=4)
 
 >>> # View the hashes
 >>> here.hash, there.hash
@@ -267,18 +263,20 @@ Decimal('131.24743')
 >>> here.decode()
 (Decimal('33.0505000000'), Decimal('-1.024'))
 >>> here.distance_in_miles(there)
-Decimal('131.24743425')
+Decimal('131.247434251')
 ```
 
 ### Precision
 
-GeoHash use the Decimal type to enforce precision
+GeoHash uses the [Decimal](https://docs.python.org/3/library/decimal.html) type to enforce precision
 
 ```python
 >>> # We can't gain more precision than we started with
 >>> here.encode(precision=16)
+>>> here.precision
+10
 >>>
->>> # The initial location only provided a precision of 10
+>>> # The is because the initial location only provided a precision of 10
 >>> here.max_precision
 10
 >>>
@@ -290,10 +288,15 @@ GeoHash use the Decimal type to enforce precision
 >>> here.decode()
 (Decimal('33.050500000000'), Decimal('-1.024'))
 >>>
->>> # The given maximum precision equates to 8 decimal places when displaying
->>> # miles
+>>> # Since the `there` object is less precise than the `here` object, the
+>>> # number of displayed `distance_in_miles` decimal places is limited by
+>>> # `there`
+>>> there.max_precision
+8
+>>> here.distance_precision
+8
 >>> here.distance_in_miles(there)
-Decimal('131.24743425')
+Decimal('131.247434251')
 ```
 
 [1] In order to achieve this level of precision, you must input a latitude with
@@ -311,3 +314,7 @@ of the usual bag-of-words model where order doesn't matter.
 
 *The Nilsimsa hash does not output the same data as the
 reference implementation.* **Use at your own risk.**
+
+## License
+
+changanya is distributed under the [MIT License](http://opensource.org/licenses/MIT).

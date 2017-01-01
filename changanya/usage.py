@@ -55,7 +55,7 @@ basic usage::
     ...     'This is simhash test.']
     >>> hashes = [Simhash(text) for text in data]
     >>> for simhash in hashes:
-    ...     print(simhash.hash)
+    ...     print(simhash)
     1318951168287673739
     1318951168283479435
     13366613251191922586
@@ -64,17 +64,22 @@ basic usage::
     13
     >>> simhash = Simhash('How are you im fine. blar blar blar blar thank')
     >>> dupe = next(index.find_dupes(simhash))
-    >>> dupe.hash == hashes[0].hash
+    >>> dupe == hashes[0]
     True
     >>> index.add(simhash)
     >>> simhash.hash
     1318986352659762571
     >>> dupe = next(index.find_dupes(simhash))
-    >>> dupe.hash == simhash.hash
+    >>> dupe == simhash
     True
     >>> result = next(index.find_all_dupes())
-    >>> (result[0], result[1]) == (hashes[1], hashes[0])
+    >>> dupe1, dupe2 = result
+    >>> (dupe1, dupe2) == (hashes[1], hashes[0])
     True
+    >>> dupe1.similarity(dupe2)
+    0.984375
+    >>> dupe1.hamming_distance(dupe2)
+    1
 
     >>> # Here is the basic Bloom filter use case
     >>> from changanya.bloom import Bloomfilter
@@ -112,7 +117,7 @@ basic usage::
     >>> from changanya.geohash import Geohash
     >>>
     >>> here = Geohash('33.050500000000', '-1.024', precision=4)
-    >>> there = Geohash('34.500000000', '-2.500', precision=4)
+    >>> there = Geohash('34.5000000000', '-2.500', precision=4)
     >>> here.hash, there.hash
     ('evzs', 'eynk')
     >>> here.decode()
@@ -127,16 +132,22 @@ basic usage::
     >>> here.decode()
     (Decimal('33.0505000000'), Decimal('-1.024'))
     >>> here.distance_in_miles(there)
-    Decimal('131.24743425')
+    Decimal('131.247434251')
 
     >>> # But we can't gain more precision than we started with
     >>> here.encode(precision=16)
+    >>> here.precision
+    10
     >>> here.max_precision
     10
     >>> here.hash
     'evzk08wm57'
     >>> here.decode()
     (Decimal('33.050500000000'), Decimal('-1.024'))
+    >>> there.max_precision
+    8
+    >>> here.distance_precision
+    8
     >>> here.distance_in_miles(there)
-    Decimal('131.24743425')
+    Decimal('131.247434251')
 """
