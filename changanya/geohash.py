@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# vim: sw=4:ts=4:expandtab
 
 """
 Geohash is a latitude / longitude geocode system invented by
@@ -123,9 +124,56 @@ class Geohash(Hashtype):
 
         self.hash = self._encode_i2c(lat, lon, lat_length, lon_length)
 
-    def decode(self):
-        quantized_lat = self.latitude.quantize(self.lat_precision)
-        quantized_lon = self.longitude.quantize(self.lon_precision)
+    def _decode_c2i(self, _hash):
+        def magic(x, y, x_length, y_length, t):
+            x = x << 3
+            y = y << 2
+            x += (t >> 2) & 4
+            y += (t >> 2) & 2
+            x += (t >> 1) & 2
+            y += (t >> 1) & 1
+            x += t & 1
+            x_length += 3
+            y_length += 2
+            return (x, y, x_length, y_length)
+
+        lon = 0
+        lat = 0
+        bit_length = 0
+        lat_length = 0
+        lon_length = 0
+
+        # Unrolled for speed and clarity
+        for i in _hash:
+            t = _BASE32_MAP[i]
+
+            if bit_length & 1:
+                lat, lon, lat_length, lon_length = magic(
+                    lat, lon, lat_length, lon_length, t)
+            else:
+                lon, lat, lon_length, lat_length = magic(
+                    lon, lat, lon_length, lat_length, t)
+
+            bit_length += 5
+
+        lat = lat << 1
+        lon = lon << 1
+        lat_length += 1
+        lon_length += 1
+        lat_numerator = Decimal(lat - (1 << (lat_length - 1)))
+        lon_numerator = Decimal(lon - (1 << (lon_length - 1)))
+        latitude = 180 * lat_numerator / (1 << lat_length)
+        longitude = 360 * lon_numerator / (1 << lon_length)
+        return (latitude, longitude)
+
+    def decode(self, _hash=None):
+        if _hash:
+            latitude, longitude = self._decode_c2i(_hash)
+        else:
+            latitude, longitude = self.latitude, self.longitude
+
+        quantized_lat = latitude.quantize(self.lat_precision)
+        quantized_lon = longitude.quantize(self.lon_precision)
         return (quantized_lat, quantized_lon)
 
     def __int__(self):
