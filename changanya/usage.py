@@ -131,6 +131,9 @@ basic usage::
     'evzk08wt'
     >>> here.decode()
     (Decimal('33.0505000000'), Decimal('-1.024'))
+    >>> # We can also decode arbitrary hashes
+    >>> here.decode('evzk08wt')
+    (Decimal('33.0504798889'), Decimal('-1.024'))
     >>> here.distance_in_miles(there)
     Decimal('131.247434251')
 

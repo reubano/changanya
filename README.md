@@ -259,6 +259,10 @@ Decimal('131.24743')
 >>> here.hash
 'evzk08wt'
 
+>>> # We can also decode arbitrary hashes
+>>> here.decode('evzk08wt')
+(Decimal('33.0504798889'), Decimal('-1.024'))
+
 >>> # The number of displayed decimal places increases as well
 >>> here.decode()
 (Decimal('33.0505000000'), Decimal('-1.024'))
