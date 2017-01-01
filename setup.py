@@ -16,8 +16,8 @@ PARENT_DIR = p.abspath(p.dirname(__file__))
 
 sys.dont_write_bytecode = True
 dev_requirements = set(pkutils.parse_requirements('dev-requirements.txt'))
-readme = pkutils.read('README.rst')
-module = pkutils.parse_module(p.join(PARENT_DIR, 'riko', '__init__.py'))
+# readme = pkutils.read('README.rst')
+module = pkutils.parse_module(p.join(PARENT_DIR, 'changanya', '__init__.py'))
 license = module.__license__
 version = module.__version__
 project = module.__title__
@@ -31,7 +31,7 @@ setup(
     name=project,
     version=version,
     description=description,
-    long_description=readme,
+    long_description=description,
     author=module.__author__,
     author_email=module.__email__,
     url=pkutils.get_url(project, user),
@@ -45,7 +45,7 @@ setup(
         'docs': ['docs/*'],
         'examples': ['examples/*']
     },
-    install_requires=requirements,
+    install_requires=[],
     extras_require={'develop': dev_requirements},
     setup_requires=setup_require,
     test_suite='nose.collector',
