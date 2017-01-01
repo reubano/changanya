@@ -282,6 +282,8 @@ GeoHash use the Decimal type to enforce precision
 ```python
 >>> # We can't gain more precision than we started with
 >>> here.encode(precision=16)
+>>> here.precision
+10
 >>>
 >>> # The initial location only provided a precision of 10
 >>> here.max_precision
@@ -295,8 +297,13 @@ GeoHash use the Decimal type to enforce precision
 >>> here.decode()
 (Decimal('33.050500000000'), Decimal('-1.024'))
 >>>
->>> # The given maximum precision equates to 8 decimal places when displaying
->>> # miles
+>>> # Since the `there` object is less precise than the `here` object, the
+>>> # number of displayed `distance_in_miles` decimal places is limited by
+>>> # `there`
+>>> there.max_precision
+8
+>>> here.distance_precision
+8
 >>> here.distance_in_miles(there)
 Decimal('131.247434251')
 ```

@@ -136,12 +136,18 @@ basic usage::
 
     >>> # But we can't gain more precision than we started with
     >>> here.encode(precision=16)
+    >>> here.precision
+    10
     >>> here.max_precision
     10
     >>> here.hash
     'evzk08wm57'
     >>> here.decode()
     (Decimal('33.050500000000'), Decimal('-1.024'))
+    >>> there.max_precision
+    8
+    >>> here.distance_precision
+    8
     >>> here.distance_in_miles(there)
     Decimal('131.247434251')
 """

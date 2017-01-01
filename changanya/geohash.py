@@ -50,8 +50,9 @@ class Geohash(Hashtype):
 
         self.lat_places = -dec_latitude.as_tuple()[2]
         self.lon_places = -dec_longitude.as_tuple()[2]
-        self.precision = precision
         self.max_precision = max(self.lat_places + HASH_PLACES_OFFSET, 0)
+        self.other_max_precision = None
+        self.precision = min(self.max_precision, precision)
         self.latitude = dec_latitude
         self.longitude = dec_longitude
 
@@ -68,25 +69,27 @@ class Geohash(Hashtype):
 
     @property
     def lat_precision(self):
-        desired_precision = self.precision + LATLON_PRECISION_OFFSET
-        return Decimal((0, (1,), -min(desired_precision, self.lat_places)))
+        precision = self.precision + LATLON_PRECISION_OFFSET
+        return Decimal((0, (1,), -min(precision, self.lat_places)))
 
     @property
     def lon_precision(self):
-        desired_precision = self.precision + LATLON_PRECISION_OFFSET
-        return Decimal((0, (1,), -min(desired_precision, self.lon_places)))
+        precision = self.precision + LATLON_PRECISION_OFFSET
+        return Decimal((0, (1,), -min(precision, self.lon_places)))
+
+    @property
+    def distance_precision(self):
+        return min(self.precision, self.other_max_precision)
 
     @property
     def km_precision(self):
-        desired_precision = self.precision + KM_PRECISION_OFFSET
-        max_precision = max(self.lat_places + KM_PLACES_OFFSET, 0)
-        return Decimal((0, (1,), -min(desired_precision, max_precision)))
+        precision = self.distance_precision + KM_PRECISION_OFFSET
+        return Decimal((0, (1,), -precision))
 
     @property
     def mi_precision(self):
-        desired_precision = self.precision + MI_PRECISION_OFFSET
-        max_precision = max(self.lat_places + MI_PLACES_OFFSET, 0)
-        return Decimal((0, (1,), -min(desired_precision, max_precision)))
+        precision = self.distance_precision + MI_PRECISION_OFFSET
+        return Decimal((0, (1,), -precision))
 
     def _encode_i2c(self, lat, lon, lat_length, lon_length):
         precision = (lat_length + lon_length) // 5
@@ -149,20 +152,15 @@ class Geohash(Hashtype):
         return Decimal(math.acos(cos))
 
     def distance(self, other):
+        self.other_max_precision = other.max_precision
         lat, lon = self.latitude, self.longitude
         other_lat, other_lon = other.latitude, other.longitude
         return self.unit_distance(lat, lon, other_lat, other_lon)
 
     def distance_in_miles(self, other):
-        lat_places = self.lat_places
-        self.lat_places = min(self.lat_places, other.lat_places)
         distance = (self.distance(other) * 3960).quantize(self.mi_precision)
-        self.lat_places = lat_places
         return distance
 
     def distance_in_km(self, other):
-        lat_places = self.lat_places
-        self.lat_places = min(self.lat_places, other.lat_places)
         distance = (self.distance(other) * 6373).quantize(self.km_precision)
-        self.lat_places = lat_places
         return distance
