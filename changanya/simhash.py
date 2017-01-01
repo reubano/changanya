@@ -183,6 +183,7 @@ class SimhashIndex(object):
     def find_all_dupes(self):
         blocks = list(self.blocks)
         widths = self.widths
+        seen = set()
 
         for permutation in it.permutations(self.block_range, self.bits):
             extra = set(permutation).symmetric_difference(self.block_range)
@@ -201,7 +202,13 @@ class SimhashIndex(object):
             end_func = lambda x: (x.permhash & mask) == (start.permhash & mask)
 
             for i, simhash in enumerate(it.takewhile(end_func, permuted)):
+                id1 = id(simhash)
+
                 for other in it.takewhile(end_func, permuted[i + 1:]):
-                    if simhash.hamming_distance(other) <= self.bits:
+                    entry_ids = frozenset([id1, id(other)])
+                    not_seen = entry_ids not in seen
+
+                    if not_seen and simhash.hamming_distance(other) <= self.bits:
                         pair = [simhash, other]
+                        seen.add(entry_ids)
                         yield tuple(sorted(pair, key=attrgetter('hash')))
