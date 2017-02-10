@@ -18,7 +18,7 @@ Included so far:
 
 from datetime import date
 
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 __title__ = 'changanya'
 __package_name__ = 'changanya'
 __author__ = 'Reuben Cummings'
