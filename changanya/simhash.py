@@ -168,15 +168,22 @@ class SimhashIndex(object):
             yield '%x:%x' % (key, i)
 
     def find_dupes(self, simhash):
+        seen = set()
+
         for key in self.get_keys(simhash):
-            for simhash in self.bucket[key]:
-                if simhash.hamming_distance(simhash) <= self.bits:
-                    yield simhash
+            for entry in self.bucket[key]:
+                entry_id = id(entry)
+                not_seen = entry_id not in seen
+
+                if not_seen and simhash.hamming_distance(entry) <= self.bits:
+                    seen.add(entry_id)
+                    yield entry
 
     # https://github.com/seomoz/simhash-cpp/blob/master/src/simhash.cpp
     def find_all_dupes(self):
         blocks = list(self.blocks)
         widths = self.widths
+        seen = set()
 
         for permutation in it.permutations(self.block_range, self.bits):
             extra = set(permutation).symmetric_difference(self.block_range)
@@ -195,7 +202,13 @@ class SimhashIndex(object):
             end_func = lambda x: (x.permhash & mask) == (start.permhash & mask)
 
             for i, simhash in enumerate(it.takewhile(end_func, permuted)):
+                id1 = id(simhash)
+
                 for other in it.takewhile(end_func, permuted[i + 1:]):
-                    if simhash.hamming_distance(other) <= self.bits:
+                    entry_ids = frozenset([id1, id(other)])
+                    not_seen = entry_ids not in seen
+
+                    if not_seen and simhash.hamming_distance(other) <= self.bits:
                         pair = [simhash, other]
+                        seen.add(entry_ids)
                         yield tuple(sorted(pair, key=attrgetter('hash')))
